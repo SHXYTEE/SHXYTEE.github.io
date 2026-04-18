@@ -1,0 +1,19 @@
+{
+    each: each
+} := import('std')
+
+{ s: s } := import('s')
+
+// ---
+
+fn tag(n, cx...) {
+    result := document.createElement(s(n))
+    
+    with each(cx) fn(ii) with result.appendChild() if type(ii) {
+        :string -> document.createTextNode(s(ii))
+        :function -> ii(result)
+        _ -> ii
+    }
+
+    result.using := fn(fx, ax...) { result.(fx)(ax...), result }
+}

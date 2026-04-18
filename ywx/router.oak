@@ -1,0 +1,31 @@
+{ s: s } := import('s')
+{ tag: tag } := import('tag')
+
+// ---
+
+fn renderRoute(path, ctx, routes) {
+    if routes.(path) {
+        ? -> console.error(
+            'Route not found:' |> s(), path, routes.(path) 
+            'Reverting to' |> s(), with s() path <- '/404', routes.(path)
+        )
+        _ -> console.log('Route found:' |> s(), path, routes.(path))
+    }
+    with ctx.replaceChildren() routes.(path)(ctx, routes.(path), path)
+}
+
+fn syncRoute(ctx, routes) {
+    path := document.location.hash.split('#').1
+    if path = ? -> path <- '/'
+    renderRoute(path, ctx, routes)
+}
+
+fn router(routes) {
+    ctx := tag(:div)
+
+    syncRoute(ctx, routes)
+    with window.addEventListener('hashchange') fn sync syncRoute(ctx, routes)
+
+    ctx.sync := sync
+    ctx.destroy := fn() window.removeEventListener('hashchange', sync)
+}
