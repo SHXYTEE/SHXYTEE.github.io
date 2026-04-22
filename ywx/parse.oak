@@ -1,0 +1,9 @@
+std := import('std')
+str := import('str')
+
+{ s: s } := import('s')
+{ tag: tag } := import('tag')
+
+// ---
+
+fn parse(wrap, shtml) tag(wrap).using(:setHTMLUnsafe, shtml)

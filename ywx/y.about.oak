@@ -1,0 +1,26 @@
+{ tag: tag } := import('tag')
+{ attr: attr } := import('attr')
+{ cls: cls } := import('cls')
+
+{ divider: divider } := import('divider')
+
+{ render: layout } := import('layout')
+
+// ---
+
+fn render(params, ctx) with layout(params, ctx) :div |> tag(
+    cls(:about)
+    tag(:h1, 'ABOUT')
+    :p |> tag(
+        'SHXYGTM is a tiny demo site wired up with a hash-based Router. '
+        'Every page you see here is a function that takes (params, ctx) and '
+        'paints a DOM subtree into the container.'
+    )
+    :p |> tag(
+        'Poke around the posts'
+        divider()
+        'each one is routed by '
+        tag(:code, ':id')
+        ' capture in the URL pattern.'
+    )
+)

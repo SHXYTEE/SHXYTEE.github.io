@@ -1,0 +1,42 @@
+std := import('std')
+fs := import('fs')
+json := import('json')
+
+{ s: s } := import('s')
+
+{ tag: tag } := import('tag')
+{ attr: attr } := import('attr')
+{ cls: cls } := import('cls')
+
+{ divider: divider } := import('divider')
+
+{ link: link, hashLink: hashLink } := import('link')
+
+{ render: layout } := import('layout')
+
+// ---
+
+posts := [
+    :hello
+    :routing
+    :shxy
+]
+
+fn byId(id) vfs.readFile('yix/posts/' + id + '.json', json.parse)
+
+// ---
+
+fn item(post) {
+    info := byId(post)
+    :li |> tag(
+        hashLink(info.title, 'posts/' + post)
+        divider()
+        info.date
+    )
+}
+
+fn render(params, ctx) with layout(params, ctx) :div |> tag(
+    cls(:posts)
+    tag(:h1, 'POSTS')
+    with tag(:ul) fn(ul) with std.each(posts) fn(p) with ul.appendChild() item(s(p))
+)

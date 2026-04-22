@@ -1,7 +1,93 @@
-{ lorem: lorem } := import('lorem')
+std := import('std')
+dt := import('datetime')
+
+b64 := import('b64')
+
+{ s: s } := import('s')
+
+{ format: format } := import('fmt')
 
 { tag: tag } := import('tag')
+{ attr: attr } := import('attr')
+{ cls: cls } := import('cls')
+
+{ link: link, hashLink: hashLink } := import('link')
+{ divider: divider } := import('divider')
+
+{ render: layout } := import('layout')
 
 // ---
 
-render := fn(params, ctx) ctx.appendChild(tag(:p, lorem))
+svgIcon := vfs.readFile('yix/bkpfp.svg')
+
+fn FaviIcon() :span |> tag(
+    cls(:pfp)
+    :img |> tag(
+        attr(:src, 'favicon.ico')
+        attr(:alt, 'Favicon')
+        attr(:width, wh := '32') 
+        attr(:height, wh)
+    )
+)
+
+// ---
+
+items := [
+    'SOME STUFF'
+    'SOME STUFF'
+    'SOME STUFF'
+    'SOME STUFF'
+]
+
+// ---
+
+fn pad2(n) {
+    s := string(n)
+    if len(s) < 2 { true -> '0' + s, _ -> s }
+}
+
+fn timestamp() {
+    ds := nanotime() |> dt.describe()
+    '{{0}}-{{1}}-{{2}}:{{3}}:{{4}}:{{5}}' |> format(
+        ds.year
+        ds.month |> pad2()
+        ds.day |> pad2()
+        ds.hour |> pad2()
+        ds.minute |> pad2()
+        ds.second |> pad2()
+    )
+}
+
+fn item(label) :li |> tag(
+    label, ' ['
+    link('LINK', '#')
+    '] | '
+    timestamp()
+)
+
+fn Left() :div |> tag(
+    cls(:left)
+    tag(:h1, 'SHXYGTM')
+    with tag(:ul) fn(ul) with std.each(items) fn(lbl) ul.appendChild(item(lbl))
+    tag(:p, cls(:release), 'release:shxy.@1:15pm/', timestamp(), ':9999')
+)
+
+fn Right() :div |> tag(
+    cls(:right)
+    :p |> tag(
+        'Some extra content that should seem to '
+        'be interesting yes so I suggest reading '
+        'it yea yea yea. Ong.'
+    )
+    tag(:p, 'Heres a ', link('link', '#'), '.')
+    // tag(:img, cls(:pfp), attr(:src, 'bkpfp.svg'), attr(:alt, ''))
+    tag(:span, cls(:pfp)).using(:setHTMLUnsafe, svgIcon)
+    FaviIcon()
+)
+
+fn render(params, ctx) with layout(params, ctx) :div |> tag(
+    cls(:helvetica, :home)
+    Left()
+    tag(:div, cls(:divider))
+    Right()
+)

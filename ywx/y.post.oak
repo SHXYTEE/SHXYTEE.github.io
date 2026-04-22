@@ -1,0 +1,25 @@
+std := import('std')
+
+{ tag: tag } := import('tag')
+{ attr: attr } := import('attr')
+{ cls: cls } := import('cls')
+
+{ divider: divider } := import('divider')
+    
+{ link: link, hashLink: hashLink } := import('link')
+{ byId: byId } := import('y.posts')
+
+{ render: layout } := import('layout')
+
+// ---
+
+fn render(params, ctx) with layout(params, ctx) {
+    post := byId(params.id) |> std.default({}) 
+    :div |> tag(
+        cls(:post)
+        with tag(:h1) std.default(post.title, 'NOT FOUND')
+        with tag(:p, cls(:meta)) std.default(post.date, '')
+        with tag(:p) std.default(post.body, tag(:code, 'No content'))
+        hashLink('/posts', 'posts')
+    )
+}

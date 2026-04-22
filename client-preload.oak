@@ -14,5 +14,6 @@ vm := Virtual.createStandardVM()
 
 vm.registerBuiltin('document', document)
 vm.registerBuiltin('window', window)
+vm.registerBuiltin('vfs', ___packed_vfs())
 
 vm.runChunk(client)

@@ -1,0 +1,9 @@
+{ tag: tag } := import('tag')
+{ attr: attr } := import('attr')
+
+// ---
+
+fn link(label, href) tag(:a, attr(:href, href), label)
+
+fn getHashLink(hash) '#/' + hash
+fn hashLink(label, hash) link(label, getHashLink(hash))

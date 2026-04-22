@@ -1,21 +1,24 @@
-{ lorem: lorem } := import('ywx/lorem')
-
-{ s: s } := import('ywx/s')
-
 { tag: tag } := import('ywx/tag')
 { Router: Router } := import('ywx/router')
-
-{ Router: HttpRouter } := import('http')
 
 // ---
 // @ Pages
 
 home := import('ywx/y.home')
+about := import('ywx/y.about')
+postsPage := import('ywx/y.posts')
+postPage := import('ywx/y.post')
 
 // ---
 
 with document.addEventListener('DOMContentLoaded') fn
 () with document.body.appendChild() with Router() {
     '/': home.render
+
+    '/about': about.render
+    
+    '/posts': postsPage.render
+    '/posts/:id': postPage.render
+    
     '/404': fn(params, ctx) with ctx.appendChild() tag(:p, 'Page not found')
 }

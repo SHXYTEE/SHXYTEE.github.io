@@ -1,0 +1,5 @@
+{ s: s } := import('s')
+
+// ---
+
+fn attr(k, v) fn(el) el.setAttribute(s(k), s(v))

@@ -1,0 +1,9 @@
+std := import('std')
+str := import('str')
+
+{ s: s } := import('s')
+{ attr: attr } := import('attr')
+
+// ---
+
+fn cls(vx...) with attr(:class) std.map(vx, s) |> str.join(' ')

@@ -1,0 +1,179 @@
+/*
+ * Intelligent font fallback:
+ *  If (X11) Mozilla doesn't think that the font you're using
+ *  has curly-quotes, it will automatically construct some
+ *  (poor-looking) ones.  If a fallback font is specified and
+ *  has the curly-quote glyphs, Mozilla will pull the glyphs
+ *  from that font. Therefore, it is recommended to fall back
+ *  to times/helvetica/courier before serif/sans-serif/monospace.
+ */
+
+/*
+ * IE Bug: IE version 6.0.2800.1106 on Windows 2000 (ver. 5.00.2195)
+ *  will only load the first font specified, if multiple fonts are
+ *  listed for font-family. Fortunately, IE on WinXP doesn't have
+ *  this bug. But for compatibility with IE on Windows 2000, I try
+ *  to specify Windows fonts first in the list.
+ */
+
+/*
+ * Browsers don't fully support font-size-adjust, so the
+ *  attribute is largely ineffective at present. However, my
+ *  tests with Windows Mozilla indicate that "Palatino Linotype"
+ *  retains its size when font-size-adjust is 0.470, and Verdana
+ *  retains its size at 0.545.
+ */
+
+.helvetica {
+  font-family:
+    helvetica,                /* Unix+X, MacOS */
+    sans-serif;
+}
+
+.arial {
+  font-family:
+    arial,                    /* Windows, MacOS */
+    helvetica,                /* Unix+X, MacOS */
+    sans-serif;
+}
+
+.verdana {
+  font-family:
+    verdana,                  /* Windows, MacOS */
+    arial,                    /* Windows, MacOS */
+    helvetica,                /* Unix+X, MacOS */
+    sans-serif;
+}
+
+.tahoma {
+  font-family:
+    tahoma,                   /* MS WebFont */
+    arial,                    /* Windows, MacOS */
+    helvetica,                /* Unix+X, MacOS */
+    sans-serif;
+}
+
+.arial-black {
+  font-family:
+    "Arial Black",            /* Windows, MacOS */
+    helvetica,                /* Unix+X, MacOS */
+    sans-serif;
+}
+
+.comic-sans-ms {
+  font-family:
+    "Comic Sans MS",          /* MS WebFont */
+    arial,                    /* Windows, MacOS */
+    helvetica,                /* Unix+X, MacOS */
+    sans-serif;
+}
+
+.trebuchet-ms {
+  font-family:
+    "Trebuchet MS",           /* MS WebFont */
+    arial,                    /* Windows, MacOS */
+    helvetica,                /* Unix+X, MacOS */
+    sans-serif;
+}
+
+.impact {
+  font-family:
+    impact,                   /* MS WebFont */
+    helvetica,                /* Unix+X, MacOS */
+    sans-serif;
+}
+
+.courier {
+  font-family:
+    courier,                  /* Unix+X, MacOS */
+    monospace;
+}
+
+.courier-new {
+  font-family:
+    "courier new",            /* Windows, MacOS */
+    courier,                  /* Unix+X, MacOS */
+    monospace;
+}
+
+.andale-mono {
+  font-family:
+    "andale mono",            /* MS WebFont */
+    "monotype.com",           /* MS WebFont, former name */
+    monaco,                   /* MacOS */
+    "courier new",            /* Windows, MacOS */
+    courier,                  /* Unix+X, MacOS */
+    monospace;
+}
+
+.georgia {
+  font-family:
+    georgia,                  /* Windows, MacOS */
+    times,                    /* Unix+X, MacOS */
+    serif;
+}
+
+.times {
+  font-family:
+    "Times Roman",            /* Windows */
+    times,                    /* Unix+X, MacOS */
+    serif;
+}
+
+.times-new-roman {
+  font-family:
+    "Times New Roman",        /* Windows, MacOS */
+    "Times Roman",            /* Windows */
+    TimesNR,                  /* Macintosh */
+    times,                    /* Unix+X, MacOS */
+    serif;
+}
+
+.palatino {
+  font-family:
+    "Palatino Linotype",      /* Windows */
+    "URW Palladio L",         /* Unix+FontConfig */
+    "palladio l",             /* Unix+X+FreeType */
+    palatino,                 /* MacOS */
+    "book antiqua",           /* Win95 */
+    times,                    /* Unix+X, MacOS */
+    serif;
+}
+
+.century-schoolbook {
+  font-family:
+    "Century Schoolbook",     /* MacOS, Windows */
+    Century,                  /* Windows, MacOS */
+    "new century schoolbook", /* Unix+X */
+    "Century Schoolbook L",   /* Unix+X+FontConfig */
+    times,                    /* Unix+X, MacOS */
+    serif;
+}
+
+.bookman {
+  font-family:
+    "Bookman Old Style",      /* Windows, MacOS */
+    "URW Bookman L",          /* Unix+X+FontConfig */
+    "itc bookman",            /* Unix+X */
+    times,                    /* Unix+X, MacOS */
+    serif;
+}
+
+.garamond {
+  font-family:
+    Garamond,                 /* Windows */
+    Garamond,                 /* MacOS */
+    "Garamond Antiqua",       /* Windows (HP printer) */
+    times,                    /* Unix+X, MacOS */
+    serif;
+}
+
+.avant-garde {
+  font-family:
+    "Century Gothic",         /* Windows (HP printer) */
+    "Avant Garde Gothic",     /* HP font name */
+    "Avant Garde",            /* MacOS */
+    "URW Gothic L",           /* Unix+X+FontConfig */
+    helvetica,                /* Unix+X, MacOS */
+    sans-serif;
+}

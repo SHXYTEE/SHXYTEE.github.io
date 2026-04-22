@@ -4,51 +4,168 @@ sh := import('gui-shader')
 
 Size := 128
 Half := Size / 2
+HalfF := float(Half)
+SizeF := float(Size)
+
+// Sphere radius in pixels
+R := HalfF * 0.78
 
 fn shader(x, y, w, h, t, u) {
-	// Normalized coordinates
-	nx := float(x) / float(w)
-	ny := float(y) / float(h)
+	xf := float(x)
+	yf := float(y)
 
-	// Animated time offsets
-	slow := t * 0.3
-	pulse := sin(t * 2.0)
-	drift := sin(t * 0.5)
+	// Centered coordinates (sphere origin at canvas center)
+	px := xf - HalfF
+	py := yf - HalfF
 
-	// Deep gradient background (dark navy → indigo) — subtle hue drift
-	bg := sh.hsl2rgb(0.65 + ny * 0.08 + drift * 0.03, 0.7, 0.08 + ny * 0.12)
+	// Subtle radial vignette background
+	nyBg := yf / float(h)
+	vigDx := (xf - HalfF) / HalfF
+	vigDy := (yf - HalfF) / HalfF
+	vig := sh.saturate(1.0 - sh.sqrt(vigDx * vigDx + vigDy * vigDy) * 0.9)
+	bg := sh.hsl2rgb(0.0, 0.0, 0.05 + nyBg * 0.06 + vig * 0.04)
 
-	// Outer ring (annular circle) — hue rotates over time
-	dOuter := sh.sdCircle(float(x), float(y), float(Half), float(Half), float(Half) * 0.85)
-	dInner := sh.sdCircle(float(x), float(y), float(Half), float(Half), float(Half) * 0.65)
-	dRing := sh.sdSubtract(dInner, dOuter)
-	ringColor := sh.hsl2rgb(0.55 + nx * 0.15 + slow, 0.85, 0.55)
-	layer := sh.sdfSmoothFill(dRing, ringColor, bg, 1.5)
+	// Starfield dusting — tiny bright points outside the sphere
+	starN := sh.hash2(float(x), float(y))
+	if starN > 0.995 {
+		true -> {
+			// Twinkle: modulate by time with per-star phase
+			phase := sh.hash2(float(x) * 1.7, float(y) * 2.3) * 6.28318
+			twinkle := 0.6 + 0.4 * sin(t * 2.0 + phase)
+			brightness := (starN - 0.995) * 200.0 * twinkle
+			bg <- sh.mix(bg, sh.hsl2rgb(0.0, 0.0, 0.98), sh.saturate(brightness))
+		}
+	}
 
-	// Center circle with checkerboard — colors shift over time
-	dCenter := sh.sdCircle(float(x), float(y), float(Half), float(Half), float(Half) * 0.5)
-	check := sh.checkerboard(float(x), float(y), 8.0)
-	centerA := sh.hsl2rgb(0.85 + slow * 0.5, 0.75, 0.55)
-	centerB := sh.hsl2rgb(0.45 + slow * 0.5, 0.8, 0.4)
-	centerColor := if check { true -> centerA, _ -> centerB }
-	layer <- sh.sdfSmoothFill(dCenter, centerColor, layer, 1.2)
+	// Soft elliptical ground shadow beneath the sphere
+	sex := px / (R * 0.85)
+	sey := (py - R * 0.95) / (R * 0.22)
+	shadowDist := sh.sqrt(sex * sex + sey * sey)
+	shadowAmt := sh.saturate(1.0 - shadowDist)
+	shadowAmt <- shadowAmt * shadowAmt * 0.45
+	bg <- sh.mix(bg, sh.hsl2rgb(0.0, 0.0, 0.01), shadowAmt)
 
-	// Accent dot top-right — pulses in size
-	dotR := 8.0 + pulse * 3.0
-	dDot := sh.sdCircle(float(x), float(y), float(Half) + float(Half) * 0.45, float(Half) - float(Half) * 0.45, dotR)
-	dotColor := sh.hsl2rgb(0.1 + slow, 0.95, 0.6)
-	layer <- sh.sdfSmoothFill(dDot, dotColor, layer, 1.0)
+	// Ray-sphere test in screen space: nz = sqrt(R^2 - px^2 - py^2)
+	r2 := R * R
+	d2 := px * px + py * py
 
-	// Accent dot bottom-left — pulses opposite phase
-	dotR2 := 8.0 - pulse * 3.0
-	dDot2 := sh.sdCircle(float(x), float(y), float(Half) - float(Half) * 0.45, float(Half) + float(Half) * 0.45, dotR2)
-	dot2Color := sh.hsl2rgb(0.0 + slow, 0.9, 0.55)
-	layer <- sh.sdfSmoothFill(dDot2, dot2Color, layer, 1.0)
+	// Atmospheric glow halo outside the sphere
+	distFromCenter := sh.sqrt(d2)
+	haloBand := sh.saturate(1.0 - (distFromCenter - R) / (R * 0.18))
+	if distFromCenter > R {
+		true -> {
+			halo := haloBand * haloBand * 0.35
+			bg <- sh.mix(bg, sh.hsl2rgb(0.0, 0.0, 0.85), halo)
+		}
+	}
 
-	// Rounded box badge at bottom center — hue cycles
-	dBadge := sh.sdRoundedBox(float(x), float(y), float(Half), float(Half) + float(Half) * 0.55, 18.0, 6.0, 3.0)
-	badgeColor := sh.hsl2rgb(0.15 + slow, 0.9, 0.55)
-	layer <- sh.sdfSmoothFill(dBadge, badgeColor, layer, 1.0)
+	if d2 > r2 {
+		true -> bg
+		_ -> {
+			// 3D sphere normal at this pixel
+			nz := sh.sqrt(r2 - d2)
+			nx := px / R
+			ny := py / R
+			nzN := nz / R
 
-	layer
+			// Normalized light direction (upper-left, toward viewer)
+			Lx := -0.55
+			Ly := -0.70
+			Lz := 0.45
+			Llen := sh.sqrt(Lx * Lx + Ly * Ly + Lz * Lz)
+			Lx <- Lx / Llen
+			Ly <- Ly / Llen
+			Lz <- Lz / Llen
+
+			// Rotate surface around Y axis so the sphere spins
+			theta := t * 0.6
+			ct := cos(theta)
+			st := sin(theta)
+			rx := nx * ct + nzN * st
+			ry := ny
+			rz := 0.0 - nx * st + nzN * ct
+
+			// Spherical coords for lat/long grid
+			lon := sh.atan2(rz, rx)
+			lat := sh.atan2(ry, sh.sqrt(rx * rx + rz * rz))
+
+			// Procedural surface "continents" via fbm on rotated coords
+			surf := sh.fbm(rx * 2.2 + 3.1, ry * 2.2 + rz * 1.1, 4)
+			// surf in ~[0,1]; shape it into continent blobs
+			continent := sh.smoothstep(0.48, 0.58, surf)
+			// Small crater-like speckle
+			spots := sh.smoothstep(0.78, 0.82, sh.fbm(rx * 6.0, ry * 6.0 + rz * 3.0, 3))
+
+			// Slow-drifting cloud layer (counter-rotating, different scale)
+			ctheta2 := t * 0.22
+			cct := cos(ctheta2)
+			cst := sin(ctheta2)
+			cx := nx * cct + nzN * cst
+			cz := 0.0 - nx * cst + nzN * cct
+			clouds := sh.fbm(cx * 3.5 + 10.0, ny * 3.5 + cz * 1.7 + 5.0, 4)
+			cloudMask := sh.smoothstep(0.55, 0.72, clouds)
+
+			// Lambertian diffuse (grey)
+			ndotl := sh.max2(0.0, nx * Lx + ny * Ly + nzN * Lz)
+			ambient := 0.18
+			diffuse := ambient + ndotl * 0.82
+			baseL := (0.48 + continent * 0.18 - spots * 0.12) * diffuse
+
+			// Latitude/longitude gridlines darken the surface (thin, subtle)
+			latBand := sh.fract(lat * 6.0 / 3.14159)
+			latEdge := sh.smoothstep(0.0, 0.05, latBand) * sh.smoothstep(1.0, 0.95, latBand)
+			lonBand := sh.fract(lon * 6.0 / 3.14159)
+			lonEdge := sh.smoothstep(0.0, 0.04, lonBand) * sh.smoothstep(1.0, 0.96, lonBand)
+			gridDark := sh.min2(latEdge, lonEdge)
+			baseL <- baseL * (0.85 + gridDark * 0.15)
+
+			col := sh.hsl2rgb(0.0, 0.0, sh.saturate(baseL))
+
+			// Overlay drifting clouds (only on lit hemisphere, modulated by diffuse)
+			cloudL := sh.saturate(0.78 * (ambient + ndotl * 0.95))
+			col <- sh.mix(col, sh.hsl2rgb(0.0, 0.0, cloudL), cloudMask * 0.55)
+
+			// Polar ice caps — bright at high absolute latitude
+			polar := sh.smoothstep(0.72, 0.88, if ry < 0.0 { true -> 0.0 - ry, _ -> ry })
+			polarL := sh.saturate(0.85 * (ambient + ndotl * 0.9))
+			col <- sh.mix(col, sh.hsl2rgb(0.0, 0.0, polarL), polar * 0.75)
+
+			// Blinn-Phong specular highlight
+			Vx := 0.0
+			Vy := 0.0
+			Vz := 1.0
+			Hx := Lx + Vx
+			Hy := Ly + Vy
+			Hz := Lz + Vz
+			Hlen := sh.sqrt(Hx * Hx + Hy * Hy + Hz * Hz)
+			Hx <- Hx / Hlen
+			Hy <- Hy / Hlen
+			Hz <- Hz / Hlen
+			ndoth := sh.max2(0.0, nx * Hx + ny * Hy + nzN * Hz)
+			spec := ndoth * ndoth
+			spec <- spec * spec
+			spec <- spec * spec * spec
+			specCol := sh.hsl2rgb(0.0, 0.0, 0.98)
+			col <- sh.mix(col, specCol, sh.saturate(spec * 0.9))
+
+			// Fresnel rim lighting for depth
+			fres := 1.0 - nzN
+			fres <- fres * fres * fres
+			rimCol := sh.hsl2rgb(0.0, 0.0, 0.9)
+			col <- sh.mix(col, rimCol, sh.saturate(fres * 0.55))
+
+			// Terminator darkening (shadow side falloff)
+			termShade := sh.smoothstep(-0.2, 0.3, nx * Lx + ny * Ly + nzN * Lz)
+			col <- sh.mix(sh.hsl2rgb(0.0, 0.0, 0.04), col, 0.15 + termShade * 0.85)
+
+			// Subtle bounce light from below (fill)
+			bounce := sh.max2(0.0, 0.0 - ny) * 0.18
+			col <- sh.mix(col, sh.hsl2rgb(0.0, 0.0, 0.5), bounce * (1.0 - termShade))
+
+			// Anti-aliased sphere edge against background
+			edgeD := sh.sqrt(d2) - R
+			aa := sh.saturate(0.5 - edgeD)
+			sh.mix(bg, col, aa)
+		}
+	}
 }
