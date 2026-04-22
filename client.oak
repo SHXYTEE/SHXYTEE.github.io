@@ -14,10 +14,8 @@ home := import('ywx/y.home')
 
 // ---
 
-with document.addEventListener('DOMContentLoaded') fn {
-    r := with Router() {
-        '/': home.render
-        '/404': fn(params, ctx) with ctx.appendChild() tag(:p, 'Page not found')
-    }
-    if r != ? -> document.body.appendChild(r)
+with document.addEventListener('DOMContentLoaded') fn
+() with document.body.appendChild() with Router() {
+    '/': home.render
+    '/404': fn(params, ctx) with ctx.appendChild() tag(:p, 'Page not found')
 }

@@ -15,7 +15,4 @@ vm := Virtual.createStandardVM()
 vm.registerBuiltin('document', document)
 vm.registerBuiltin('window', window)
 
-with vm.runChunk(client) {
-	debug: true
-	onDone: fn() '[client-preload] VM finished' |> s() |> window.console.log()
-}
+vm.runChunk(client)
