@@ -1,0 +1,13 @@
+std := import('std')
+fn tag(n) if n != ? -> {
+    'got-' + string(n)
+}
+std.println(tag('x'))
+std.println(tag(?))
+std.println(type(tag))
+fn tag(n) if n != ? -> {
+    'got-' + string(n)
+}
+std.println(tag('x'))
+std.println(tag(?))
+std.println(type(tag))

@@ -1,0 +1,1 @@
+router := import('test-router')

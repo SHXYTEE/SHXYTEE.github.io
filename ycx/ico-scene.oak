@@ -1,0 +1,54 @@
+sh := import('gui-shader')
+
+// ---
+
+Size := 128
+Half := Size / 2
+
+fn shader(x, y, w, h, t, u) {
+	// Normalized coordinates
+	nx := float(x) / float(w)
+	ny := float(y) / float(h)
+
+	// Animated time offsets
+	slow := t * 0.3
+	pulse := sin(t * 2.0)
+	drift := sin(t * 0.5)
+
+	// Deep gradient background (dark navy → indigo) — subtle hue drift
+	bg := sh.hsl2rgb(0.65 + ny * 0.08 + drift * 0.03, 0.7, 0.08 + ny * 0.12)
+
+	// Outer ring (annular circle) — hue rotates over time
+	dOuter := sh.sdCircle(float(x), float(y), float(Half), float(Half), float(Half) * 0.85)
+	dInner := sh.sdCircle(float(x), float(y), float(Half), float(Half), float(Half) * 0.65)
+	dRing := sh.sdSubtract(dInner, dOuter)
+	ringColor := sh.hsl2rgb(0.55 + nx * 0.15 + slow, 0.85, 0.55)
+	layer := sh.sdfSmoothFill(dRing, ringColor, bg, 1.5)
+
+	// Center circle with checkerboard — colors shift over time
+	dCenter := sh.sdCircle(float(x), float(y), float(Half), float(Half), float(Half) * 0.5)
+	check := sh.checkerboard(float(x), float(y), 8.0)
+	centerA := sh.hsl2rgb(0.85 + slow * 0.5, 0.75, 0.55)
+	centerB := sh.hsl2rgb(0.45 + slow * 0.5, 0.8, 0.4)
+	centerColor := if check { true -> centerA, _ -> centerB }
+	layer <- sh.sdfSmoothFill(dCenter, centerColor, layer, 1.2)
+
+	// Accent dot top-right — pulses in size
+	dotR := 8.0 + pulse * 3.0
+	dDot := sh.sdCircle(float(x), float(y), float(Half) + float(Half) * 0.45, float(Half) - float(Half) * 0.45, dotR)
+	dotColor := sh.hsl2rgb(0.1 + slow, 0.95, 0.6)
+	layer <- sh.sdfSmoothFill(dDot, dotColor, layer, 1.0)
+
+	// Accent dot bottom-left — pulses opposite phase
+	dotR2 := 8.0 - pulse * 3.0
+	dDot2 := sh.sdCircle(float(x), float(y), float(Half) - float(Half) * 0.45, float(Half) + float(Half) * 0.45, dotR2)
+	dot2Color := sh.hsl2rgb(0.0 + slow, 0.9, 0.55)
+	layer <- sh.sdfSmoothFill(dDot2, dot2Color, layer, 1.0)
+
+	// Rounded box badge at bottom center — hue cycles
+	dBadge := sh.sdRoundedBox(float(x), float(y), float(Half), float(Half) + float(Half) * 0.55, 18.0, 6.0, 3.0)
+	badgeColor := sh.hsl2rgb(0.15 + slow, 0.9, 0.55)
+	layer <- sh.sdfSmoothFill(dBadge, badgeColor, layer, 1.0)
+
+	layer
+}

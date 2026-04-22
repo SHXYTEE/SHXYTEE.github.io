@@ -1,31 +1,49 @@
+std := import('std')
+{ split: split } := import('str')
+
+{ Router: HttpRouter } := import('http')
+
 { s: s } := import('s')
 { tag: tag } := import('tag')
 
 // ---
 
-fn renderRoute(path, ctx, routes) {
-    if routes.(path) {
-        ? -> console.error(
-            'Route not found:' |> s(), path, routes.(path) 
-            'Reverting to' |> s(), with s() path <- '/404', routes.(path)
-        )
-        _ -> console.log('Route found:' |> s(), path, routes.(path))
+fn _currentPath(doc) {
+    raw := if doc.location.hash != ? { true -> doc.location.hash, _ -> '' }
+    px := raw |> split('#')
+    p := if len(px) > 1 { true -> px.(1), _ -> '/' }
+    if p = ? | p = '' { true -> '/', _ -> p }
+}
+
+cs Router(routes, config) {
+    doc := config.document |> std.default(document)
+    win := config.window |> std.default(window)
+    ctx := config.ctx |> std.default(tag(:div))
+
+    httpRouter := HttpRouter()
+
+    page404 := config.error |> std.default('/404')
+
+    keys(routes) |> with std.each() fn(pattern) with httpRouter.add(pattern) fn(params) fn(req, end) {
+        ctx.replaceChildren()
+        routes.(pattern)(params, ctx)
     }
-    with ctx.replaceChildren() routes.(path)(ctx, routes.(path), path)
-}
+    
+    with httpRouter.catch() fn() fn(req, end) with ctx.replaceChildren() if notFound := routes.(page404) {
+        ? -> with ctx.appendChild() tag(:p, '404 Not Found')
+        _ -> notFound({}, ctx)
+    }
 
-fn syncRoute(ctx, routes) {
-    path := document.location.hash.split('#').1
-    if path = ? -> path <- '/'
-    renderRoute(path, ctx, routes)
-}
+    fn hashSync {
+        path := _currentPath(doc)
+        httpRouter.match(path)({ method: 'GET', url: path }, fn() 0)
+    }
 
-fn router(routes) {
-    ctx := tag(:div)
+    win.addEventListener('hashchange', hashSync)
+    hashSync()
 
-    syncRoute(ctx, routes)
-    with window.addEventListener('hashchange') fn sync syncRoute(ctx, routes)
+    ctx.sync := hashSync
+    ctx.destroy := fn() win.removeEventListener('hashchange', hashSync)
 
-    ctx.sync := sync
-    ctx.destroy := fn() window.removeEventListener('hashchange', sync)
+    ctx
 }

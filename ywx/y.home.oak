@@ -1,8 +1,7 @@
 { lorem: lorem } := import('lorem')
 
 { tag: tag } := import('tag')
-{ router: router } := import('router')
 
 // ---
 
-render := fn(ctx) tag(:p, lorem)
+render := fn(params, ctx) ctx.appendChild(tag(:p, lorem))

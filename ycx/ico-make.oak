@@ -1,0 +1,29 @@
+std := import('std')
+fs := import('fs')
+
+sh := import('gui-shader')
+img := import('image')
+
+{ shader: shader, Size: Size, Half: Half } := import('ico-scene')
+
+// ---
+
+buf := sh.createBuffer(Size, Size)
+
+scene := sh.Shader(shader, { resolution: 1 })
+sh.renderShaderToBuffer(buf, scene)
+
+icoPath := 'favicon.ico'
+icoPixels := []
+
+std.range(0, Size) |> with std.each() fn(y) {
+	std.range(0, Size) |> with std.each() fn(x) {
+		c := sh.getPixel(buf, x, y)
+		r := c & 255
+		g := (c >> 8) & 255
+		b := (c >> 16) & 255
+		icoPixels << [b, g, r, 255]
+	}
+}
+
+with fs.writeFile(icoPath) img.ico.ico(Size, Size, icoPixels)

@@ -1,0 +1,7 @@
+﻿f := if Function != ? {
+    true -> Function('a', 'b', 'return a + b')
+    _ -> ?
+}
+std := import('std')
+std.println(f)
+std.println(f(2, 3))

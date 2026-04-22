@@ -1,0 +1,12 @@
+std := import('std')
+fmt := import('fmt')
+http := import('http')
+
+server := http.Server()
+
+with server.route('/*staticPath') fn(params) http.handleStatic(params.staticPath)
+with server.route('/') fn() http.handleStatic('index.html')
+
+Port := 9999
+fmt.printf('Serving on http://localhost:{{ 0 }}', Port)
+server.start(Port)

@@ -1,17 +1,21 @@
-{ lorem: lorem } := import('ywx/lorem')
+std := import('std')
+fs := import('fs')
 
-{ tag: tag } := import('ywx/tag')
-{ router: router } := import('ywx/router')
+Virtual := import('Virtual')
 
-// ---
-// @ Pages
-
-home := import('ywx/y.home')
+{ s: s } := import('ywx/s')
 
 // ---
+// @ Initial
 
-with document.body.appendChild() with router() {
-    '/': home.render
-    
-    '/404': fn(ctx) tag(:p, 'Page not found')
+client := fs.readFile('client.mbc')
+
+vm := Virtual.createStandardVM()
+
+vm.registerBuiltin('document', document)
+vm.registerBuiltin('window', window)
+
+with vm.runChunk(client) {
+	debug: true
+	onDone: fn() '[client-preload] VM finished' |> s() |> window.console.log()
 }

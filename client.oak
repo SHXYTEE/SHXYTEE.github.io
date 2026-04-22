@@ -1,7 +1,11 @@
 { lorem: lorem } := import('ywx/lorem')
 
+{ s: s } := import('ywx/s')
+
 { tag: tag } := import('ywx/tag')
-{ router: router } := import('ywx/router')
+{ Router: Router } := import('ywx/router')
+
+{ Router: HttpRouter } := import('http')
 
 // ---
 // @ Pages
@@ -10,8 +14,10 @@ home := import('ywx/y.home')
 
 // ---
 
-with document.body.appendChild() with router() {
-    '/': home.render
-    
-    '/404': fn(ctx) tag(:p, 'Page not found')
+with document.addEventListener('DOMContentLoaded') fn {
+    r := with Router() {
+        '/': home.render
+        '/404': fn(params, ctx) with ctx.appendChild() tag(:p, 'Page not found')
+    }
+    if r != ? -> document.body.appendChild(r)
 }

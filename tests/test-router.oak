@@ -1,0 +1,499 @@
+// tests/test-router — Unit tests for ywx/router.oak Router class
+//
+// Uses dummy document/window/ctx objects so tests run in native Oak
+// without a real browser DOM.
+
+{
+    println: println
+    each: each
+    default: default
+} := import('std')
+{ split: split } := import('str')
+{ Router: Router } := import('../ywx/router')
+
+passed := 0
+failed := 0
+
+fn assert(label, cond) if cond {
+    true -> {
+        passed <- passed + 1
+        println('  ✓ ' + label)
+    }
+    _ -> {
+        failed <- failed + 1
+        println('  ✗ FAIL: ' + label)
+    }
+}
+
+fn assertEq(label, got, want) assert(label + ' (got=' + string(got) + ' want=' + string(want) + ')', got = want)
+
+// ─── Dummy factory helpers ────────────────────────────────────────────────────
+
+fn makeCtx() {
+    ctx := { children: [], ops: [] }
+    ctx.replaceChildren := fn() {
+        ctx.ops << 'clear'
+        ctx.children <- []
+    }
+    ctx.appendChild := fn(child) {
+        ctx.ops << 'append'
+        ctx.children << child
+        child
+    }
+    ctx
+}
+
+fn makeDoc(hash) {
+    { location: { hash: hash } }
+}
+
+fn makeWin() {
+    listeners := {}
+    win := {}
+    win.listeners := listeners
+    win.addEventListener := fn(evt, fn_) listeners.(evt) := fn_
+    win.removeEventListener := fn(evt, fn_) listeners.(evt) := ?
+    // helper: simulate hashchange
+    win.dispatchHashChange := fn() if listeners.hashchange != ? {
+        true -> listeners.hashchange()
+    }
+    win
+}
+
+// ─── Initial render on construction ──────────────────────────────────────────
+
+println('=== initial render ===')
+println('')
+{
+    doc := makeDoc('#/')
+    win := makeWin()
+    ctx := makeCtx()
+    rendered := ?
+
+    Router({
+        '/': fn(params, c) rendered <- 'home'
+        '/404': fn(params, c) rendered <- '404'
+    }, { document: doc, window: win, ctx: ctx })
+
+    assertEq('initial #/ renders home', rendered, 'home')
+    assert('ctx.replaceChildren called on init', ctx.ops |> len() > 0)
+}
+
+println('')
+println('=== initial render: unknown hash defaults to / ===')
+println('')
+{
+    doc := makeDoc('')
+    win := makeWin()
+    ctx := makeCtx()
+    rendered := ?
+
+    Router({
+        '/': fn(params, c) rendered <- 'home'
+        '/404': fn(params, c) rendered <- '404'
+    }, { document: doc, window: win, ctx: ctx })
+
+    assertEq('empty hash renders home (/)', rendered, 'home')
+}
+
+// ─── hashchange event re-renders ─────────────────────────────────────────────
+
+println('')
+println('=== hashchange navigation ===')
+println('')
+{
+    doc := makeDoc('#/')
+    win := makeWin()
+    ctx := makeCtx()
+    rendered := ?
+
+    Router({
+        '/': fn(params, c) rendered <- 'home'
+        '/about': fn(params, c) rendered <- 'about'
+        '/404': fn(params, c) rendered <- '404'
+    }, { document: doc, window: win, ctx: ctx })
+
+    assertEq('starts at home', rendered, 'home')
+
+    doc.location.hash <- '#/about'
+    win.dispatchHashChange()
+    assertEq('after hashchange to #/about', rendered, 'about')
+
+    doc.location.hash <- '#/'
+    win.dispatchHashChange()
+    assertEq('back to #/ renders home', rendered, 'home')
+}
+
+// ─── 404 fallback ────────────────────────────────────────────────────────────
+
+println('')
+println('=== 404 fallback ===')
+println('')
+{
+    doc := makeDoc('#/does-not-exist')
+    win := makeWin()
+    ctx := makeCtx()
+    rendered := ?
+
+    Router({
+        '/': fn(params, c) rendered <- 'home'
+        '/404': fn(params, c) rendered <- '404'
+    }, { document: doc, window: win, ctx: ctx })
+
+    assertEq('unknown path renders 404 handler', rendered, '404')
+}
+
+println('')
+println('=== 404 fallback via navigation ===')
+println('')
+{
+    doc := makeDoc('#/')
+    win := makeWin()
+    ctx := makeCtx()
+    rendered := ?
+
+    Router({
+        '/': fn(params, c) rendered <- 'home'
+        '/404': fn(params, c) rendered <- '404'
+    }, { document: doc, window: win, ctx: ctx })
+
+    doc.location.hash <- '#/ghost'
+    win.dispatchHashChange()
+    assertEq('navigating to unknown triggers 404', rendered, '404')
+}
+
+// ─── :param capture ──────────────────────────────────────────────────────────
+
+println('')
+println('=== :param capture ===')
+println('')
+{
+    doc := makeDoc('#/user/42')
+    win := makeWin()
+    ctx := makeCtx()
+    gotId := ?
+
+    Router({
+        '/user/:id': fn(params, c) gotId <- params.id
+        '/404': fn(params, c) 0
+    }, { document: doc, window: win, ctx: ctx })
+
+    assertEq(':id captured on construction', gotId, '42')
+}
+
+println('')
+println('=== :param via navigation ===')
+println('')
+{
+    doc := makeDoc('#/')
+    win := makeWin()
+    ctx := makeCtx()
+    gotSlug := ?
+
+    Router({
+        '/': fn(params, c) 0
+        '/post/:slug': fn(params, c) gotSlug <- params.slug
+        '/404': fn(params, c) 0
+    }, { document: doc, window: win, ctx: ctx })
+
+    doc.location.hash <- '#/post/hello-world'
+    win.dispatchHashChange()
+    assertEq(':slug captured after hashchange', gotSlug, 'hello-world')
+}
+
+// ─── *wildcard capture ────────────────────────────────────────────────────────
+
+println('')
+println('=== *wildcard capture ===')
+println('')
+{
+    doc := makeDoc('#/files/images/logo.png')
+    win := makeWin()
+    ctx := makeCtx()
+    gotPath := ?
+
+    Router({
+        '/files/*path': fn(params, c) gotPath <- params.path
+        '/404': fn(params, c) 0
+    }, { document: doc, window: win, ctx: ctx })
+
+    assertEq('*path wildcard captured', gotPath, 'images/logo.png')
+}
+
+// ─── .sync() manual re-render ─────────────────────────────────────────────────
+
+println('')
+println('=== .sync() method ===')
+println('')
+{
+    doc := makeDoc('#/')
+    win := makeWin()
+    ctx := makeCtx()
+    rendered := ?
+
+    r := Router({
+        '/': fn(params, c) rendered <- 'home'
+        '/sync-page': fn(params, c) rendered <- 'sync-page'
+        '/404': fn(params, c) 0
+    }, { document: doc, window: win, ctx: ctx })
+
+    assertEq('starts at home', rendered, 'home')
+
+    doc.location.hash <- '#/sync-page'
+    r.sync()
+    assertEq('.sync() re-renders at new hash', rendered, 'sync-page')
+}
+
+// ─── .destroy() removes listener ─────────────────────────────────────────────
+
+println('')
+println('=== .destroy() removes hashchange listener ===')
+println('')
+{
+    doc := makeDoc('#/')
+    win := makeWin()
+    ctx := makeCtx()
+    rendered := ?
+
+    r := Router({
+        '/': fn(params, c) rendered <- 'home'
+        '/about': fn(params, c) rendered <- 'about'
+        '/404': fn(params, c) 0
+    }, { document: doc, window: win, ctx: ctx })
+
+    r.destroy()
+
+    doc.location.hash <- '#/about'
+    win.dispatchHashChange()
+    assertEq('after destroy, hashchange has no effect', rendered, 'home')
+    assertEq('listener removed from window', win.listeners.hashchange, ?)
+}
+
+// ─── ctx returned is the container ───────────────────────────────────────────
+
+println('')
+println('=== returns the ctx element ===')
+println('')
+{
+    doc := makeDoc('#/')
+    win := makeWin()
+    ctx := makeCtx()
+
+    r := Router({
+        '/': fn(params, c) 0
+        '/404': fn(params, c) 0
+    }, { document: doc, window: win, ctx: ctx })
+
+    assert('Router() returns the ctx object', r = ctx)
+}
+
+// ─── Summary ─────────────────────────────────────────────────────────────────
+
+println('')
+println('=== results ===')
+println('')
+println('  passed: ' + string(passed))
+println('  failed: ' + string(failed))
+println('')
+if failed > 0 {
+    true -> println('FAIL')
+    _ -> println('ok')
+}
+
+
+{
+    println: println
+    each: each
+    default: default
+} := import('std')
+{ split: split } := import('str')
+{ Router: HttpRouter } := import('http')
+
+passed := 0
+failed := 0
+
+fn assert(label, cond) if cond {
+    true -> {
+        passed <- passed + 1
+        println('  ✓ ' + label)
+    }
+    _ -> {
+        failed <- failed + 1
+        println('  ✗ FAIL: ' + label)
+    }
+}
+
+fn assertEq(label, got, want) assert(label + ' (got=' + string(got) + ' want=' + string(want) + ')', got = want)
+
+// ─── http.Router pattern matching ────────────────────────────────────────────
+
+println('=== http.Router: exact paths ===')
+println('')
+{
+    r := HttpRouter()
+    hit := ?
+    r.add('/', fn(params) fn(req, end) { hit <- 'home' })
+    r.add('/about', fn(params) fn(req, end) { hit <- 'about' })
+
+    handler := r.match('/')
+    handler({ method: 'GET', url: '/' }, fn(_) 0)
+    assertEq('match / -> home', hit, 'home')
+
+    handler2 := r.match('/about')
+    handler2({ method: 'GET', url: '/about' }, fn(_) 0)
+    assertEq('match /about -> about', hit, 'about')
+}
+
+println('')
+println('=== http.Router: :param capture ===')
+println('')
+{
+    r := HttpRouter()
+    capturedId := ?
+    r.add('/user/:id', fn(params) fn(req, end) { capturedId <- params.id })
+
+    handler := r.match('/user/42')
+    handler({ method: 'GET', url: '/user/42' }, fn(_) 0)
+    assertEq(':id captured correctly', capturedId, '42')
+}
+
+println('')
+println('=== http.Router: *wildcard capture ===')
+println('')
+{
+    r := HttpRouter()
+    capturedRest := ?
+    r.add('/files/*path', fn(params) fn(req, end) { capturedRest <- params.path })
+
+    handler := r.match('/files/images/logo.png')
+    handler({ method: 'GET', url: '/files/images/logo.png' }, fn(_) 0)
+    assertEq('*path captured rest of path', capturedRest, 'images/logo.png')
+}
+
+println('')
+println('=== http.Router: catch-all fallback ===')
+println('')
+{
+    r := HttpRouter()
+    hit := ?
+    r.add('/', fn(params) fn(req, end) { hit <- 'home' })
+    r.catch(fn(_) fn(req, end) { hit <- '404' })
+
+    handler := r.match('/does-not-exist')
+    handler({ method: 'GET', url: '/does-not-exist' }, fn(_) 0)
+    assertEq('unmatched path falls through to catch', hit, '404')
+}
+
+println('')
+println('=== http.Router: multiple :params ===')
+println('')
+{
+    r := HttpRouter()
+    got := {}
+    r.add('/org/:org/repo/:repo', fn(params) fn(req, end) {
+        got.org := params.org
+        got.repo := params.repo
+    })
+
+    handler := r.match('/org/spcfork/repo/magnolia')
+    handler({ method: 'GET', url: '/org/spcfork/repo/magnolia' }, fn(_) 0)
+    assertEq(':org captured', got.org, 'spcfork')
+    assertEq(':repo captured', got.repo, 'magnolia')
+}
+
+println('')
+println('=== http.Router: first match wins ===')
+println('')
+{
+    r := HttpRouter()
+    hit := ?
+    r.add('/page', fn(params) fn(req, end) { hit <- 'first' })
+    r.add('/page', fn(params) fn(req, end) { hit <- 'second' })
+
+    handler := r.match('/page')
+    handler({ method: 'GET', url: '/page' }, fn(_) 0)
+    assertEq('first registered handler wins', hit, 'first')
+}
+
+// ─── _currentPath logic (pure, no DOM) ────────────────────────────────────────
+
+println('')
+println('=== _currentPath logic ===')
+println('')
+{
+    fn simulatePath(hash) {
+        px := hash |> split('#')
+        p := if len(px) > 1 { true -> px.(1), _ -> '/' }
+        if p = ? | p = '' { true -> '/', _ -> p }
+    }
+
+    assertEq('empty hash -> /', simulatePath(''), '/')
+    assertEq('bare hash "#" -> /', simulatePath('#'), '/')
+    assertEq('#/ -> /', simulatePath('#/'), '/')
+    assertEq('#/about -> /about', simulatePath('#/about'), '/about')
+    assertEq('#/user/99 -> /user/99', simulatePath('#/user/99'), '/user/99')
+    assertEq('no hash -> /', simulatePath('http://example.com'), '/')
+}
+
+// ─── Mock DOM integration ─────────────────────────────────────────────────────
+
+println('')
+println('=== Router: dispatch integration (mock DOM) ===')
+println('')
+{
+    // Test the routing dispatch logic directly without real DOM elements
+    r := HttpRouter()
+    rendered := ?
+    ctx := { children: [] }
+    ctx.replaceChildren := fn() ctx.children <- []
+    ctx.appendChild := fn(child) ctx.children << child
+
+    r.add('/', fn(params) fn(req, end) {
+        ctx.replaceChildren()
+        rendered <- 'home'
+    })
+    r.add('/page/:name', fn(params) fn(req, end) {
+        ctx.replaceChildren()
+        rendered <- 'page:' + params.name
+    })
+    r.catch(fn(_) fn(req, end) {
+        ctx.replaceChildren()
+        rendered <- '404'
+    })
+
+    fn dispatch(hash) {
+        px := hash |> split('#')
+        p := if len(px) > 1 { true -> px.(1), _ -> '/' }
+        path := if p = ? | p = '' { true -> '/', _ -> p }
+        handler := r.match(path)
+        handler({ method: 'GET', url: path }, fn(_) 0)
+    }
+
+    dispatch('#/')
+    assertEq('#/ dispatches home', rendered, 'home')
+
+    dispatch('#/page/about')
+    assertEq('#/page/about dispatches page:about', rendered, 'page:about')
+
+    dispatch('#/unknown')
+    assertEq('#/unknown falls through to 404', rendered, '404')
+
+    dispatch('#/')
+    assertEq('back to #/ dispatches home again', rendered, 'home')
+}
+
+// ─── Summary ─────────────────────────────────────────────────────────────────
+
+println('')
+println('=== results ===')
+println('')
+println('  passed: ' + string(passed))
+println('  failed: ' + string(failed))
+println('')
+
+if failed > 0 {
+    true -> {
+        println('FAIL')
+    }
+    _ -> println('ok')
+}
