@@ -1,0 +1,11 @@
+title = "ROUTING"
+date = "2026-04-21"
+body = """
+The router is a tiny state machine. It listens for hash changes,
+picks the first pattern that matches the current path, and swaps
+the ctx node's children with whatever the matching handler renders.
+
+Patterns look like Express routes: '/posts/:id' captures an id
+parameter, '*' matches anything remaining. Handlers receive a
+params object and a ctx node, and return a DOM subtree.
+"""

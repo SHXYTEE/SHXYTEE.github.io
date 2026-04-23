@@ -1,6 +1,10 @@
 std := import('std')
 fs := import('fs')
-json := import('json')
+str := import('str')
+toml := import('data-toml')
+
+sort := import('sort')
+datetime := import('datetime')
 
 { s: s } := import('s')
 
@@ -16,13 +20,24 @@ json := import('json')
 
 // ---
 
-posts := [
-    :hello
-    :routing
-    :shxy
-]
+fn byId(id) vfs.readFile('yix/posts/' + id + '.toml', toml.parse)
 
-fn byId(id) vfs.readFile('yix/posts/' + id + '.json', json.parse)
+// Parse a post's date (YYYY-MM-DD) into a unix timestamp for sorting.
+fn postDate(id) {
+    info := byId(id)
+    if info = ? | info.date = ? {
+        true -> 0
+        _ -> if parsed := datetime.parse(info.date + 'T00:00:00Z') {
+            ? -> 0
+            _ -> datetime.timestamp(parsed)
+        }
+    }
+}
+
+fn listPosts(dir) vfs.listDir(dir) |>
+    std.filter(fn(e) !e.dir & str.endsWith?(e.name, '.toml')) |>
+    std.map(fn(e) std.slice(e.name, 0, len(e.name) - 5)) |>
+    sort.sort(fn(p) -postDate(p))
 
 // ---
 
@@ -35,8 +50,17 @@ fn item(post) {
     )
 }
 
+// ---
+
+fn updateCache PostsCache <- listPosts('yix/posts')
+PostsCache := updateCache()
+
+PostInterval := window.setInterval(updateCache, 15000)
+
+// ---
+
 fn render(params, ctx) with layout(params, ctx) :div |> tag(
     cls(:posts)
     tag(:h1, 'POSTS')
-    with tag(:ul) fn(ul) with std.each(posts) fn(p) with ul.appendChild() item(s(p))
+    with tag(:ul) fn(ul) with std.each(PostsCache) fn(p) with ul.appendChild() item(s(p))
 )

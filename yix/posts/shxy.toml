@@ -1,0 +1,15 @@
+title = "SHXY"
+date = "2026-04-22"
+body = """
+SHXY is the sniper laboratory. It is where trading strategies are
+written in Oak, compiled down to bytecode, and fired against live
+markets through a thin RPC shim.
+
+The codebase is organized into small, composable modules: risk,
+slippage, wallet, rpc, and strategy. Each piece is tested in
+isolation, then stitched together by a main loop that watches
+mempools and reacts within a handful of milliseconds.
+
+The goal is not to win every trade. The goal is to lose predictably
+when we lose and compound steadily when we don't.
+"""
