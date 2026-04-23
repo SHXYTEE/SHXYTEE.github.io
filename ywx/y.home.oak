@@ -33,10 +33,10 @@ fn FaviIcon() :span |> tag(
 // ---
 
 items := [
-    'SOME STUFF'
-    'SOME STUFF'
-    'SOME STUFF'
-    'SOME STUFF'
+    [tag(:span, 'SOME STUFF'), '#/', 1776904332]
+    [tag(:span, 'SOME STUFF'), '#/', 1776904332]
+    [tag(:span, 'SOME STUFF'), '#/', 1776904332]
+    [tag(:span, 'SOME STUFF'), '#/', 1776904332]
 ]
 
 // ---
@@ -46,9 +46,9 @@ fn pad2(n) {
     if len(s) < 2 { true -> '0' + s, _ -> s }
 }
 
-fn timestamp() {
-    ds := nanotime() |> dt.describe()
-    '{{0}}-{{1}}-{{2}}:{{3}}:{{4}}:{{5}}' |> format(
+fn timestamp(label) {
+    ds := dt.describe(label)
+    raw := '{{0}}-{{1}}-{{2}}:{{3}}:{{4}}:{{5}}' |> format(
         ds.year
         ds.month |> pad2()
         ds.day |> pad2()
@@ -59,17 +59,17 @@ fn timestamp() {
 }
 
 fn item(label) :li |> tag(
-    label, ' ['
-    link('LINK', '#')
+    label.0, ' ['
+    link('LINK', label.1)
     '] | '
-    timestamp()
+    timestamp(label.2)
 )
 
 fn Left() :div |> tag(
     cls(:left)
     tag(:h1, 'SHXYGTM')
     with tag(:ul) fn(ul) with std.each(items) fn(lbl) ul.appendChild(item(lbl))
-    tag(:p, cls(:release), 'release:shxy.@1:15pm/', timestamp(), ':9999')
+    tag(:p, cls(:release), 'release:shxy.@1:15pm/', timestamp(items.(len(items) - 1).2), ':9999')
 )
 
 fn Right() :div |> tag(
@@ -79,7 +79,7 @@ fn Right() :div |> tag(
         'be interesting yes so I suggest reading '
         'it yea yea yea. Ong.'
     )
-    tag(:p, 'Heres a ', link('link', '#'), '.')
+    tag(:p, 'Heres a ', link('link', '#/'), '.')
     // tag(:img, cls(:pfp), attr(:src, 'bkpfp.svg'), attr(:alt, ''))
     tag(:span, cls(:pfp)).using(:setHTMLUnsafe, svgIcon)
     FaviIcon()

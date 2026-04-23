@@ -1,4 +1,5 @@
 std := import('std')
+str := import('str')
 
 { tag: tag } := import('tag')
 { attr: attr } := import('attr')
@@ -13,13 +14,16 @@ std := import('std')
 
 // ---
 
+fn renderTags(body) str.trim(body) |>
+    str.replace('\n', '<br>')
+
 fn render(params, ctx) with layout(params, ctx) {
     post := byId(params.id) |> std.default({}) 
     :div |> tag(
         cls(:post)
         with tag(:h1) std.default(post.title, 'NOT FOUND')
         with tag(:p, cls(:meta)) std.default(post.date, '')
-        with tag(:p) std.default(post.body, tag(:code, 'No content'))
+        with tag(:p).using(:setHTMLUnsafe) renderTags(post.body) |> with std.default() tag(:code, 'No content')
         hashLink('/posts', 'posts')
     )
 }

@@ -1,0 +1,55 @@
+/* @import "y.home.css";
+@import "y.about.css";
+@import "y.post.css";
+@import "y.posts.css"; */
+
+/* --- */
+
+body {
+    font-family: helvetica, arial, sans-serif;
+    color: #000;
+    margin: 0;
+}
+
+a { 
+    color: #3b6cf0; 
+    text-decoration: none; 
+    
+    &:hover { text-decoration: underline; }
+}
+
+
+code { 
+    font-family: "courier new", courier, monospace;
+    font-size: 12px;
+}
+
+/* --- */
+
+.nav {
+    max-width: 640px;
+    margin: 1.5rem auto 0;
+    padding: 0 2rem;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    
+    & a { font-style: italic; color: #3b6cf0; }
+}
+
+.page { display: contents; }
+
+.about, .posts, .post {
+    max-width: 640px;
+    margin: 2rem auto 4rem;
+    padding: 0 2rem;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.about h1, .posts h1, .post h1 {
+    font-size: 14px;
+    font-weight: bold;
+    letter-spacing: 0.05em;
+    margin: 0 0 1.5rem 0;
+}

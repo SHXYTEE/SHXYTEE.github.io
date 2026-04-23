@@ -10,83 +10,12 @@ std := import('std')
 
 // ---
 
-fn globalStyle '
-    body {
-        font-family: helvetica, arial, sans-serif;
-        color: #000;
-        margin: 0;
-    }
-    a { color: #3b6cf0; text-decoration: none; }
-    a:hover { text-decoration: underline; }
-    code { font-family: "courier new", courier, monospace; font-size: 12px; }
-
-    .nav {
-        max-width: 640px;
-        margin: 1.5rem auto 0;
-        padding: 0 2rem;
-        font-size: 11px;
-        letter-spacing: 0.1em;
-        text-transform: uppercase;
-    }
-    .nav a { font-style: italic; color: #3b6cf0; }
-
-    .page { display: contents; }
-
-    .home {
-        display: grid;
-        grid-template-columns: 2.2fr 1px 1fr;
-        gap: 2rem;
-        max-width: 640px;
-        margin: 2rem auto 4rem;
-        padding: 0 2rem;
-        font-size: 12px;
-        color: #000;
-    }
-    .home .divider { background: #000; width: 1px; }
-    .home .pfp { display: block; width: 32px; margin-left: auto; }
-    .home .release { margin-top: 2rem; font-size: 11px; }
-    .home .right a { text-transform: none; }
-    .home .right p {
-        text-align: justify;
-        margin: 0 0 1rem 0;
-        line-height: 1.4;
-    }
-    .home a {
-        color: #3b6cf0;
-        text-decoration: none;
-        font-style: italic;
-        text-transform: uppercase;
-    }
-    .home h1 {
-        font-size: 14px;
-        font-weight: bold;
-        letter-spacing: 0.05em;
-        margin: 0 0 1.5rem 0;
-    }
-    .home ul { list-style: none; padding: 0 0 0 2rem; margin: 0 0 2rem 0; }
-    .home li { position: relative; margin-bottom: 0.25rem; }
-    .home li::before { content: "-"; position: absolute; left: -1.25rem; }
-
-    .about, .posts, .post {
-        max-width: 640px;
-        margin: 2rem auto 4rem;
-        padding: 0 2rem;
-        font-size: 12px;
-        line-height: 1.5;
-    }
-    .about h1, .posts h1, .post h1 {
-        font-size: 14px;
-        font-weight: bold;
-        letter-spacing: 0.05em;
-        margin: 0 0 1.5rem 0;
-    }
-    .posts ul { list-style: none; padding: 0 0 0 2rem; margin: 0; }
-    .posts li { position: relative; margin-bottom: 0.5rem; }
-    .posts li::before { content: "-"; position: absolute; left: -1.25rem; }
-    .posts a, .post a { font-style: italic; text-transform: uppercase; }
-    .post .meta { font-size: 11px; color: #666; margin: -1rem 0 1.5rem 0; }
-    .post p { margin: 0 0 1rem 0; }
-'
+fn globalStyle '/* OMBC /Stylesheet */\n' <<
+    vfs.readFile('yix/layout.css') <<
+    vfs.readFile('yix/y.home.css') <<
+    vfs.readFile('yix/y.about.css') <<
+    vfs.readFile('yix/y.posts.css') <<
+    vfs.readFile('yix/y.post.css')
 
 fn Nav() tag(
     :nav, cls(:nav)
