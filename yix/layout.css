@@ -1,7 +1,9 @@
-/* @import "y.home.css";
+/* 
+@import "y.home.css";
 @import "y.about.css";
 @import "y.post.css";
-@import "y.posts.css"; */
+@import "y.posts.css"; 
+*/
 
 /* --- */
 
@@ -52,4 +54,42 @@ code {
     font-weight: bold;
     letter-spacing: 0.05em;
     margin: 0 0 1.5rem 0;
+}
+
+/* Mobile adjustments */
+@media (max-width: 640px) {
+    .nav {
+        max-width: 100%;
+        margin: 1rem auto 0;
+        padding: 0 1rem;
+        font-size: 11px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        align-items: center;
+    }
+
+    .nav a { font-style: italic; color: #3b6cf0; display: inline-block; }
+
+    .about, .posts, .post {
+        max-width: 100%;
+        margin: 1rem auto 2rem;
+        padding: 0 1rem;
+        font-size: 13px;
+    }
+
+    .about h1, .posts h1, .post h1 {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    body { font-size: 16px; }
+
+    .nav { font-size: 10px; padding: 0 0.75rem; }
+    .nav a { margin-right: 0.75rem; }
+
+    .about, .posts, .post { font-size: 14px; padding: 0 0.75rem; }
+
+    code { font-size: 12px; word-break: break-word; }
 }
