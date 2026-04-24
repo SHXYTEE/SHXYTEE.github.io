@@ -1,0 +1,12 @@
+str := import('str')
+
+{ s: s } := import('s')
+
+{ tag: tag } := import('tag')
+{ attr: attr } := import('attr')
+
+// ---
+
+fn style(sx) with attr(:style) s(sx) |> 
+    str.replace(',', ';') |>
+    str.slice(1, len(sx) - 1)

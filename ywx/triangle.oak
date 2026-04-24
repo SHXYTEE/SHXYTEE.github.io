@@ -1,0 +1,24 @@
+{ format: format } := import('fmt')
+
+{ tag: tag } := import('tag')
+{ cls: cls } := import('cls')
+{ attr: attr } := import('attr')
+
+{ style: style } := import('style')
+
+// ---
+
+fn Triangle(top, left, tx, ty, width, height, col) with tag(:div, cls(:triangle)) with attr(:style) format('
+    width: 0px;
+    height: 0px;
+    top: {{0}};
+    left: {{1}};
+    position: relative;
+    border-{{2}}: {{4}} solid {{6}};
+    border-{{3}}: {{5}} solid transparent;
+',ty, tx, top, left, height, width, col)
+
+fn TriangleTopLeft(tx, ty, width, height, col) Triangle('top', 'right', tx, ty, width, height, col)
+fn TriangleTopRight(tx, ty, width, height, col) Triangle('top', 'left', tx, ty, width, height, col)
+fn TriangleBottomLeft(tx, ty, width, height, col) Triangle('bottom', 'right', tx, ty, width, height, col)
+fn TriangleBottomRight(tx, ty, width, height, col) Triangle('bottom', 'left', tx, ty, width, height, col)

@@ -18,6 +18,8 @@ b64 := import('b64')
 
 // ---
 
+splash := 'release:shxy.@9:05pm/'
+
 svgIcon := vfs.readFile('yix/bkpfp.svg')
 
 fn FaviIcon() :span |> tag(
@@ -65,14 +67,14 @@ fn item(label) :li |> tag(
     timestamp(label.2)
 )
 
-fn Left() :div |> tag(
+fn Left :div |> tag(
     cls(:left)
     tag(:h1, 'SHXYGTM')
     with tag(:ul) fn(ul) with std.each(items) fn(lbl) ul.appendChild(item(lbl))
-    tag(:p, cls(:release), 'release:shxy.@1:15pm/', timestamp(items.(len(items) - 1).2), ':9999')
+    tag(:p, cls(:release), splash, timestamp(items.(len(items) - 1).2), ':9999')
 )
 
-fn Right() :div |> tag(
+fn Right :div |> tag(
     cls(:right)
     :p |> tag(
         'Some extra content that should seem to '

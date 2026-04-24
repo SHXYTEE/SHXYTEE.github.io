@@ -1,5 +1,7 @@
 std := import('std')
 
+{ s: s } := import('s')
+
 { tag: tag } := import('tag')
 { attr: attr } := import('attr')
 { cls: cls } := import('cls')
@@ -7,6 +9,17 @@ std := import('std')
 { divider: divider } := import('divider')
 
 { link: link, hashLink: hashLink } := import('link')
+
+// { Rect: Rect, RectOutline: RectOutline } := import('rect')
+// { Floater: Floater } := import('floater')
+
+// { 
+//     Triangle: Triangle
+//     TriangleTopLeft: TriangleTopLeft
+//     TriangleTopRight: TriangleTopRight
+//     TriangleBottomLeft: TriangleBottomLeft
+//     TriangleBottomRight: TriangleBottomRight
+// } := import('triangle')
 
 // ---
 
@@ -17,8 +30,8 @@ fn globalStyle '/* OMBC /Stylesheet */\n' <<
     vfs.readFile('yix/y.posts.css') <<
     vfs.readFile('yix/y.post.css')
 
-fn Nav() tag(
-    :nav, cls(:nav)
+fn Nav :nav |> tag(
+    cls(:nav)
     hashLink('/home', '')
     divider()
     hashLink('/about', 'about')
@@ -26,8 +39,14 @@ fn Nav() tag(
     hashLink('/posts', 'posts')
 )
 
+// fn Footer :footer |> tag(
+//     cls(:footer)
+//     tag(:span, '© 2026 SPECT')
+// )
+
 fn render(params, ctx, body) ctx.replaceChildren(
     with tag(:style) globalStyle()
     Nav()
     tag(:div, cls(:page), body)
+    // Footer()
 )

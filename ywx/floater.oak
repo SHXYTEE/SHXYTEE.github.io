@@ -1,0 +1,22 @@
+std := import('std') 
+
+{ format: format } := import('fmt')
+
+{ tag: tag } := import('tag')
+{ attr: attr } := import('attr')
+{ cls: cls } := import('cls')
+
+{ style: style } := import('style')
+
+// ---
+
+fn Floater(tag?, x, y, w, h) std.default(tag, :div) |> tag(
+    cls(:floater)
+    with style() format('
+        position: absolute;
+        top: {{1}};
+        left: {{2}};
+        width: {{3}};
+        height: {{4}};
+    ', y, x, w, h)
+) 
