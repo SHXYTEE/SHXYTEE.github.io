@@ -1,4 +1,7 @@
 std := import('std')
+
+path := import('path')
+
 { split: split } := import('str')
 
 { Router: HttpRouter } := import('http')
@@ -20,23 +23,38 @@ cs Router(routes, config) {
     win := config.window |> std.default(window)
     ctx := config.ctx |> std.default(tag(:div))
 
+    matchEnd := config.end |> std.default(fn(x) x |> std.default(0))
+
     httpRouter := HttpRouter()
 
     page404 := config.error |> std.default('/404')
 
+    fn doMatch(method, px) httpRouter.match(px)({ method: s(method), url: px }, matchEnd)
+    fn doRoute(params, req, end, route) with route() {
+        params: params
+        req: req
+        end: end
+
+        ctx: ctx
+        httpRouter: httpRouter
+        
+        doMatch: doMatch
+        doRoute: doRoute
+    }
+
     keys(routes) |> with std.each() fn(pattern) with httpRouter.add(pattern) fn(params) fn(req, end) {
         ctx.replaceChildren()
-        routes.(pattern)(params, ctx)
+        doRoute(params, req, end, routes.(pattern)) |> end()
     }
     
-    with httpRouter.catch() fn() fn(req, end) with ctx.replaceChildren() if notFound := routes.(page404) {
-        ? -> with ctx.appendChild() tag(:p, '404 Not Found')
-        _ -> notFound({}, ctx)
+    with httpRouter.catch() fn(params) fn(req, end) with ctx.replaceChildren() with ctx.appendChild() with end() if notFound := routes.(page404) {
+        ? -> tag(:pre, '404 Not Found')
+        _ -> doRoute(params, req, end, notFound)
     }
 
     fn hashSync {
-        path := _currentPath(doc)
-        httpRouter.match(path)({ method: 'GET', url: path }, fn() 0)
+        px := _currentPath(doc)
+        doMatch(:GET, px)
     }
 
     win.addEventListener('hashchange', hashSync)
@@ -44,6 +62,9 @@ cs Router(routes, config) {
 
     ctx.sync := hashSync
     ctx.destroy := fn() win.removeEventListener('hashchange', hashSync)
+    ctx.hash := fn() _currentPath(doc)
+
+    ctx.match := doMatch
 
     ctx
 }

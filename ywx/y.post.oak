@@ -1,6 +1,8 @@
 std := import('std')
 str := import('str')
 
+{ vm: vm } := import('../ycx/w.vm')
+
 { s: s } := import('s')
 
 { tag: tag } := import('tag')
@@ -19,11 +21,16 @@ str := import('str')
 fn renderTags(body) str.trim(body) |>
     str.replace('\n', '<br>')
 
-fn render(params, ctx) with layout(params, ctx) {
+fn render(root) with layout(root) {
     post := std.merge(
-        { title: 'NOT FOUND', date: '', body: '' }
-        s(params.id) |> byId() |> std.default({})
+        { title: 'NOT FOUND', date: '', body: '',  viewMBC: ? }
+        s(root.params.id) |> byId() |> std.default({})
     )
+    
+    if post.viewMBC != ? -> with vm.run(post.viewMBC) with std.merge(root) {
+        post: post
+    }
+
     :div |> tag(
         cls(:post)
         with tag(:h1) post.title

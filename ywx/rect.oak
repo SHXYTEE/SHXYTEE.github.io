@@ -4,26 +4,24 @@
 { cls: cls } := import('cls')
 { attr: attr } := import('attr')
 
-{ style: style } := import('style')
-
 // ---
 
-fn Rect(x, y, w, h, col) with tag(:div, cls(:rect)) with attr(:style) format('
-    position: absolute;
-    top: {{0}};
-    left: {{1}};
-    width: {{2}};
-    height: {{3}};
-    backgroundColor: {{4}};
-', x, y, w, h, col)
+fn Rect(pos, x, y, w, h, col, args...) with tag(:div, cls(:rect), args...) with attr(:style) format('
+    position: {{0}};
+    top: {{1}};
+    left: {{2}};
+    width: {{3}};
+    height: {{4}};
+    background-color: {{5}};
+', pos, y, x, w, h, col)
 
-fn RectOutline(x, y, w, h, col, thickness) with tag(:div, cls(:rectOutline)) with attr(:style) format('
-    position: absolute;
-    top: {{0}};
-    left: {{1}};
-    width: {{2}};
-    height: {{3}};
-    border: {{5}}px solid {{4}};
-    boxSizing: border-box;
-    transform: translate(-{{5}}px, calc({{5}}px * -2));
-', x, y, w, h, col, thickness)
+fn RectOutline(pos, x, y, w, h, col, thickness, args...) with tag(:div, cls(:rectOutline), args...) with attr(:style) format('
+    position: {{0}};
+    top: {{1}};
+    left: {{2}};
+    width: {{3}};
+    height: {{4}};
+    border: {{6}}px solid {{5}};
+    box-sizing: border-box;
+    transform: translate(-{{6}}px, calc({{6}}px * -2));
+', pos, y, x, w, h, col, thickness)

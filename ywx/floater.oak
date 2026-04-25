@@ -6,13 +6,11 @@ std := import('std')
 { attr: attr } := import('attr')
 { cls: cls } := import('cls')
 
-{ style: style } := import('style')
-
 // ---
 
 fn Floater(tag?, x, y, w, h) std.default(tag, :div) |> tag(
     cls(:floater)
-    with style() format('
+    with attr(:style) format('
         position: absolute;
         top: {{1}};
         left: {{2}};

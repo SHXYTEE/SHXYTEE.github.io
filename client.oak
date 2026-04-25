@@ -4,6 +4,8 @@
 // ---
 // @ Pages
 
+{ render: layout } := import('ywx/layout')
+
 home := import('ywx/y.home')
 about := import('ywx/y.about')
 postsPage := import('ywx/y.posts')
@@ -19,6 +21,6 @@ with document.addEventListener('DOMContentLoaded') fn
     
     '/posts': postsPage.render
     '/posts/:id': postPage.render
-    
-    '/404': fn(params, ctx) with ctx.appendChild() tag(:p, 'Page not found')
+
+    '/404': fn(root) tag(:pre, 'Page not found')
 }

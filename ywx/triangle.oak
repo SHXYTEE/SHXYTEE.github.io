@@ -4,21 +4,19 @@
 { cls: cls } := import('cls')
 { attr: attr } := import('attr')
 
-{ style: style } := import('style')
-
 // ---
 
-fn Triangle(top, left, tx, ty, width, height, col) with tag(:div, cls(:triangle)) with attr(:style) format('
+fn Triangle(pos, top, left, tx, ty, width, height, col, args...) with tag(:div, cls(:triangle), args...) with attr(:style) format('
     width: 0px;
     height: 0px;
-    top: {{0}};
-    left: {{1}};
-    position: relative;
-    border-{{2}}: {{4}} solid {{6}};
-    border-{{3}}: {{5}} solid transparent;
-',ty, tx, top, left, height, width, col)
+    top: {{1}};
+    left: {{2}};
+    position: {{0}};
+    border-{{3}}: {{5}} solid {{7}};
+    border-{{4}}: {{6}} solid transparent;
+', pos, ty, tx, top, left, height, width, col)
 
-fn TriangleTopLeft(tx, ty, width, height, col) Triangle('top', 'right', tx, ty, width, height, col)
-fn TriangleTopRight(tx, ty, width, height, col) Triangle('top', 'left', tx, ty, width, height, col)
-fn TriangleBottomLeft(tx, ty, width, height, col) Triangle('bottom', 'right', tx, ty, width, height, col)
-fn TriangleBottomRight(tx, ty, width, height, col) Triangle('bottom', 'left', tx, ty, width, height, col)
+fn TriangleTopLeft(pos, tx, ty, width, height, col, args...) Triangle(pos, 'top', 'right', tx, ty, width, height, col, args...)
+fn TriangleTopRight(pos, tx, ty, width, height, col, args...) Triangle(pos, 'top', 'left', tx, ty, width, height, col, args...)
+fn TriangleBottomLeft(pos, tx, ty, width, height, col, args...) Triangle(pos, 'bottom', 'right', tx, ty, width, height, col, args...)
+fn TriangleBottomRight(pos, tx, ty, width, height, col, args...) Triangle(pos, 'bottom', 'left', tx, ty, width, height, col, args...)

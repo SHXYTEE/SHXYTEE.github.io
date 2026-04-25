@@ -1,5 +1,11 @@
 std := import('std')
 
+json := import('json')
+
+{ sha256: sha256 } := import('crypto')
+
+{ format: format } := import('fmt')
+
 { s: s } := import('s')
 
 { tag: tag } := import('tag')
@@ -10,28 +16,35 @@ std := import('std')
 
 { link: link, hashLink: hashLink } := import('link')
 
-// { Rect: Rect, RectOutline: RectOutline } := import('rect')
-// { Floater: Floater } := import('floater')
+{ Rect: Rect, RectOutline: RectOutline } := import('rect')
+{ Floater: Floater } := import('floater')
 
-// { 
-//     Triangle: Triangle
-//     TriangleTopLeft: TriangleTopLeft
-//     TriangleTopRight: TriangleTopRight
-//     TriangleBottomLeft: TriangleBottomLeft
-//     TriangleBottomRight: TriangleBottomRight
-// } := import('triangle')
+{ 
+    Triangle: Triangle
+    TriangleTopLeft: TriangleTopLeft
+    TriangleTopRight: TriangleTopRight
+    TriangleBottomLeft: TriangleBottomLeft
+    TriangleBottomRight: TriangleBottomRight
+} := import('triangle')
 
 // ---
 
-fn globalStyle '/* OMBC /Stylesheet */\n' <<
+fn globalStyle '/* © 2026 YXXS /Stylesheet */\n' <<
     vfs.readFile('yix/layout.css') <<
     vfs.readFile('yix/y.home.css') <<
     vfs.readFile('yix/y.about.css') <<
     vfs.readFile('yix/y.posts.css') <<
     vfs.readFile('yix/y.post.css')
 
-fn Nav :nav |> tag(
+fn NavTitle :nav |> tag(
     cls(:nav)
+    with tag(:small, document.location.host, ' :: ') with tag(:span) sha256(
+        document.location.host + '::' + JSON.stringify(vfs.files)
+    )
+)
+
+fn NavLinks :span |> tag(
+    cls(:navLinks)
     hashLink('/home', '')
     divider()
     hashLink('/about', 'about')
@@ -39,14 +52,33 @@ fn Nav :nav |> tag(
     hashLink('/posts', 'posts')
 )
 
-// fn Footer :footer |> tag(
-//     cls(:footer)
-//     tag(:span, '© 2026 SPECT')
-// )
+fn Footer :footer |> tag(
+    cls(:footer)
+    :relative |> Rect('0', '0', rectWidth := '100%', rectHeight := '2.75ch', rectColor := '#eee'
+        cls(:footerBg)
+        // tag(:span, '© 2026 SPECT')
+        NavLinks()
+    )
+    :relative |> TriangleTopRight(
+        footerHingeX := 'calc({{0}} - {{1}} - {{2}})' |> format(rectWidth, footerHingeWidth := '120px', footerHingeHeight := '20px'), '0'
+        footerHingeHeight, footerHingeHeight
+        rectColor
+        cls(:footerHingeTriangle)
+    )
+    :relative |> Rect(
+        footerHingeX, '0', 
+        footerHingeWidth, footerHingeHeight
+        rectColor
 
-fn render(params, ctx, body) ctx.replaceChildren(
+        cls(:footerHinge) 
+        with tag(:span, '© 2026 SPECT') with attr(:style) 'margin: 0 0.75rem;'
+    )
+)
+
+fn render(root, body) root.ctx.replaceChildren(
     with tag(:style) globalStyle()
-    Nav()
+    // Nav()
+    NavTitle()
     tag(:div, cls(:page), body)
-    // Footer()
+    Footer()
 )

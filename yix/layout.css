@@ -7,6 +7,10 @@
 
 /* --- */
 
+:root {
+    --link: #3b6cf0;
+}
+
 body {
     font-family: helvetica, arial, sans-serif;
     color: #000;
@@ -14,12 +18,19 @@ body {
 }
 
 a { 
-    color: #3b6cf0; 
+    color: var(--link);
     text-decoration: none; 
     
     &:hover { text-decoration: underline; }
 }
 
+small { 
+    font-size: 11px;
+    color: #ddd;
+    font-weight: 700;
+
+    letter-spacing: 0.05em;
+}
 
 code { 
     font-family: "courier new", courier, monospace;
@@ -35,25 +46,71 @@ code {
     font-size: 11px;
     letter-spacing: 0.1em;
     text-transform: uppercase;
+
+    & a { font-style: italic; }
+    & small { font-style: italic; text-emphasis: "/"; }
     
-    & a { font-style: italic; color: #3b6cf0; }
+    & small span {
+        font-size: 7px; 
+        color: #eee;
+        font-weight: normal;
+        text-emphasis: none;
+
+        display: inline-block;
+        width: 26.755ch;
+        overflow-wrap: anywhere;
+    }
+}
+
+.footer .navLinks {
+    margin: 0 auto 0;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    
+    text-transform: uppercase;
+}
+
+.footer {
+    display: flex;
+    flex-wrap: wrap;
+    max-width: 640px;
+    margin: 2rem auto 2rem;
+    font-size: 14px;
+
+    height: min-content;
+
+    color: #bbb;
+    
+    & .footerBg {
+        align-items: center;
+        display: flex;
+        position: absolute;
+    }
+
+    & .footerHinge {
+        font-size: 10px;
+        text-align: right;
+    }
 }
 
 .page { display: contents; }
 
-.about, .posts, .post {
+.divider { background: #ddd; width: 1px; }
+
+.home, .about, .posts, .post {
     max-width: 640px;
-    margin: 2rem auto 4rem;
+    margin: 2rem auto 2rem;
     padding: 0 2rem;
     font-size: 12px;
     line-height: 1.5;
 }
 
-.about h1, .posts h1, .post h1 {
+.home h1, .about h1, .posts h1, .post h1 {
     font-size: 14px;
     font-weight: bold;
     letter-spacing: 0.05em;
     margin: 0 0 1.5rem 0;
+    line-height: 1;
 }
 
 /* Mobile adjustments */
@@ -78,9 +135,9 @@ code {
         align-items: center;
     }
 
-    .nav a { font-style: italic; color: #3b6cf0; display: inline-block; }
+    .nav a { font-style: italic; display: inline-block; }
 
-    .about, .posts, .post {
+    .home, .about, .posts, .post {
         max-width: 100%;
         margin: 1rem auto 2rem;
         padding: 0 1rem;
@@ -101,4 +158,11 @@ code {
     .about, .posts, .post { font-size: 14px; padding: 0 0.75rem; }
 
     code { font-size: 12px; word-break: break-word; }
+}
+
+@media (max-width: 360px) {
+    .nav { font-size: 9px; padding: 0 0.5rem; }
+    .nav a { margin-right: 0.5rem; }
+
+    .about, .posts, .post { font-size: 15px; padding: 0 0.5rem; }
 }

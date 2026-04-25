@@ -1,7 +1,10 @@
 std := import('std')
 fs := import('fs')
 str := import('str')
-toml := import('data-toml')
+
+{ vm: vm } := import('../ycx/w.vm')
+
+{ TOML: TOML } := import('data')
 
 sort := import('sort')
 datetime := import('datetime')
@@ -20,7 +23,7 @@ datetime := import('datetime')
 
 // ---
 
-fn byId(id) vfs.readFile('yix/posts/' + id + '.toml', toml.parse)
+fn byId(id) vfs.readFile('yix/posts/' + id + '.toml', TOML.parse)
 
 // Parse a post's date (YYYY-MM-DD) into a unix timestamp for sorting.
 fn postDate(id) {
@@ -41,8 +44,13 @@ fn listPosts(dir) vfs.listDir(dir) |>
 
 // ---
 
-fn item(post) {
+fn item(root, post) {
     info := byId(post)
+    
+    if info.infoMBC != ? -> with vm.run(info.infoMBC) with std.merge(root) {
+        post: post
+    }
+    
     :li |> tag(
         hashLink(info.title, 'posts/' + post)
         divider()
@@ -59,8 +67,8 @@ PostInterval := window.setInterval(updateCache, 15000)
 
 // ---
 
-fn render(params, ctx) with layout(params, ctx) :div |> tag(
+fn render(root) with layout(root) :div |> tag(
     cls(:posts)
     tag(:h1, 'POSTS')
-    with tag(:ul) fn(ul) with std.each(PostsCache) fn(p) with ul.appendChild() item(s(p))
+    with tag(:ul) fn(ul) with std.each(PostsCache) fn(p) with ul.appendChild() item(root, p)
 )
