@@ -1,0 +1,11 @@
+title = "FIRST NEWS"
+href = "#/"
+timestamp = 1776904332
+
+mbc = """
+std := import('std')
+
+// ---
+
+window.console.log('Hello, world!', ix)
+"""

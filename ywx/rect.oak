@@ -1,0 +1,27 @@
+{ format: format } := import('fmt')
+
+{ tag: tag } := import('tag')
+{ cls: cls } := import('cls')
+{ attr: attr } := import('attr')
+
+// ---
+
+fn Rect(pos, x, y, w, h, col, args...) with tag(:div, cls(:rect), args...) with attr(:style) format('
+    position: {{0}};
+    top: {{1}};
+    left: {{2}};
+    width: {{3}};
+    height: {{4}};
+    background-color: {{5}};
+', pos, y, x, w, h, col)
+
+fn RectOutline(pos, x, y, w, h, col, thickness, args...) with tag(:div, cls(:rectOutline), args...) with attr(:style) format('
+    position: {{0}};
+    top: {{1}};
+    left: {{2}};
+    width: {{3}};
+    height: {{4}};
+    border: {{6}}px solid {{5}};
+    box-sizing: border-box;
+    transform: translate(-{{6}}px, calc({{6}}px * -2));
+', pos, y, x, w, h, col, thickness)

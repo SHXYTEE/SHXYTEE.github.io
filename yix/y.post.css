@@ -1,4 +1,10 @@
 .post {
-    & .meta { font-size: 11px; color: #666; margin: -1rem 0 1.5rem 0; }
+    & .meta { 
+        font-size: 11px;
+        color: #666;
+        margin: -1rem 0 1.5rem 0;
+    }
+
     & p { margin: 0 0 1rem 0; }
+    & a { letter-spacing: 0.05em; }
 }

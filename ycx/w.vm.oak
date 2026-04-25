@@ -1,0 +1,16 @@
+std := import('std')
+fs := import('fs')
+
+Virtual := import('Virtual')
+
+{ s: s } := import('../ywx/s')
+
+// ---
+
+vm := Virtual.createStandardVM()
+
+vm.registerBuiltin('document', document)
+vm.registerBuiltin('window', window)
+vm.registerBuiltin('vm', vm)
+
+vm.registerBuiltin('vfs', ___packed_vfs())

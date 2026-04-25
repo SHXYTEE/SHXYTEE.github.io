@@ -1,11 +1,18 @@
 std := import('std')
 dt := import('datetime')
 
+{ vm: vm } := import('../ycx/w.vm')
+
 b64 := import('b64')
+str := import('str')
+sort := import('sort')
+
+{ TOML: TOML } := import('data')
 
 { s: s } := import('s')
 
 { format: format } := import('fmt')
+{ sort!: sort! } := import('sort')
 
 { tag: tag } := import('tag')
 { attr: attr } := import('attr')
@@ -15,6 +22,31 @@ b64 := import('b64')
 { divider: divider } := import('divider')
 
 { render: layout } := import('layout')
+
+// ---
+
+splash := 'release:shxy.@9:05pm/'
+
+// Load items from yix/items/ folder
+fn itemById(id) vfs.readFile('yix/items/' + id + '.toml', TOML.parse)
+
+fn listItems(dir) {
+    fileList := vfs.listDir(dir) |>
+        std.filter(fn(e) !e.dir & str.endsWith?(e.name, '.toml')) |>
+        std.map(fn(e) std.slice(e.name, 0, len(e.name) - 5))
+    
+    fileList <- fileList |> with std.map() fn(id) {
+        info := itemById(id)
+        [tag(:span, info.title), info.href, info.timestamp, info.mbc]
+    }
+
+    fileList |> with sort!() fn(file) file.2
+}
+
+fn cacheItems Items <- listItems('yix/items')
+Items := cacheItems()
+
+ItemsInterval := window.setInterval(cacheItems, 15000)
 
 // ---
 
@@ -29,15 +61,6 @@ fn FaviIcon() :span |> tag(
         attr(:height, wh)
     )
 )
-
-// ---
-
-items := [
-    [tag(:span, 'SOME STUFF'), '#/', 1776904332]
-    [tag(:span, 'SOME STUFF'), '#/', 1776904332]
-    [tag(:span, 'SOME STUFF'), '#/', 1776904332]
-    [tag(:span, 'SOME STUFF'), '#/', 1776904332]
-]
 
 // ---
 
@@ -65,14 +88,18 @@ fn item(label) :li |> tag(
     timestamp(label.2)
 )
 
-fn Left() :div |> tag(
+fn Left :div |> tag(
     cls(:left)
-    tag(:h1, 'SHXYGTM')
-    with tag(:ul) fn(ul) with std.each(items) fn(lbl) ul.appendChild(item(lbl))
-    tag(:p, cls(:release), 'release:shxy.@1:15pm/', timestamp(items.(len(items) - 1).2), ':9999')
+    tag(:h1, tag(:small, '::'), 'YXXS', tag(:small, '.NEWS/'))
+    with tag(:ul) fn(ul) with std.each(Items) fn(lbl) with ul.appendChild() {
+        ix := item(lbl)
+        if lbl.3 != ? -> vm.run(lbl.3, { ix: ix })
+        ix
+    }
+    tag(:p, cls(:release), splash, timestamp(Items.(len(Items) - 1).2), ':9999')
 )
 
-fn Right() :div |> tag(
+fn Right :div |> tag(
     cls(:right)
     :p |> tag(
         'Some extra content that should seem to '
@@ -85,7 +112,7 @@ fn Right() :div |> tag(
     FaviIcon()
 )
 
-fn render(params, ctx) with layout(params, ctx) :div |> tag(
+fn render(root) with layout(root) :div |> tag(
     cls(:helvetica, :home)
     Left()
     tag(:div, cls(:divider))
