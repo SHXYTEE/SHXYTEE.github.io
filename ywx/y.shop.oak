@@ -1,0 +1,75 @@
+std := import('std')
+str := import('str')
+sort := import('sort')
+
+{ RootVm: RootVm } := import('RootVm')
+
+{ TOML: TOML } := import('data')
+
+{ id: id } := import('id')
+{ tag: tag } := import('tag')
+{ cls: cls } := import('cls')
+{ attr: attr } := import('attr')
+
+{ divider: divider } := import('divider')
+
+{ link: link, hashLink: hashLink } := import('link')
+
+{ render: layout } := import('layout')
+
+// ---
+
+fn byId(id) vfs.readFile('yix/shop/' + id + '.toml', TOML.parse)
+
+fn listItems(dir) vfs.listDir(dir) |>
+    std.filter(fn(e) !e.dir & str.endsWith?(e.name, '.toml')) |>
+    std.map(fn(e) std.slice(e.name, 0, len(e.name) - 5)) |>
+    sort.sort(fn(id) -byId(id).timestamp)
+
+fn updateCache ShopCache <- listItems('yix/shop')
+ShopCache := updateCache()
+
+ShopInterval := window.setInterval(updateCache, 15000)
+
+// ---
+
+fn shopItem(root, itemId) {
+    info := byId(itemId)
+
+    ix := :li |> tag(
+        cls(:shop, :item)
+        ixTitle := tag(:span, cls(:shop, :title), hashLink(info.name, 'shop/' + itemId))
+        divider()
+        ixCategory := tag(:span, cls(:shop, :category), info.category)
+        divider()
+        ixStock := tag(:span, cls(:shop, :stock), 'Stock: ' + string(info.stock))
+        divider()
+        ixPrice := tag(:span, cls(:shop, :price), '$' + string(info.price))
+
+        ixDescription := tag(:p, cls(:shop, :description), info.description)
+    )
+
+    if info.infoMBC != ? -> with RootVm(info.infoMBC, root) {
+        post: itemId
+        info: info
+        ix: ix
+        ixTitle: ixTitle
+        ixCategory: ixCategory
+        ixStock: ixStock
+        ixPrice: ixPrice
+        ixDescription: ixDescription
+    }
+
+    ix
+}
+
+// ---
+
+fn render(root) with layout(root) :div |> tag(
+    cls(:shop, :container)
+    tag(:h1, 'SHOP')
+    
+    with tag(:ul, cls(:shop, :items)) fn
+    (ul) with std.each(ShopCache) fn
+    (itemId) ul.appendChild(shopItem(root, itemId))
+)

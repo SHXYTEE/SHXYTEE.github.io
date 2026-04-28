@@ -12,7 +12,7 @@
 }
 
 body {
-    font-family: helvetica, arial, sans-serif;
+    /* font-family: helvetica, arial, sans-serif; */
     color: #000;
     margin: 0;
 }
@@ -97,20 +97,21 @@ code {
 
 .divider { background: #ddd; width: 1px; }
 
-.home, .about, .posts, .post {
+.container {
+    /* .home, .about, .posts, .post, .shop */
     max-width: 640px;
     margin: 2rem auto 2rem;
     padding: 0 2rem;
     font-size: 12px;
     line-height: 1.5;
-}
 
-.home h1, .about h1, .posts h1, .post h1 {
-    font-size: 14px;
-    font-weight: bold;
-    letter-spacing: 0.05em;
-    margin: 0 0 1.5rem 0;
-    line-height: 1;
+    & h1 {
+        font-size: 14px;
+        font-weight: bold;
+        letter-spacing: 0.05em;
+        margin: 0 0 1.5rem 0;
+        line-height: 1;
+    }
 }
 
 /* Mobile adjustments */
@@ -137,15 +138,13 @@ code {
 
     .nav a { font-style: italic; display: inline-block; }
 
-    .home, .about, .posts, .post {
+    .container {
         max-width: 100%;
         margin: 1rem auto 2rem;
         padding: 0 1rem;
         font-size: 13px;
-    }
 
-    .about h1, .posts h1, .post h1 {
-        font-size: 16px;
+        & h1 { font-size: 16px;}
     }
 }
 
@@ -155,7 +154,7 @@ code {
     .nav { font-size: 10px; padding: 0 0.75rem; }
     .nav a { margin-right: 0.75rem; }
 
-    .about, .posts, .post { font-size: 14px; padding: 0 0.75rem; }
+    .container { font-size: 14px; padding: 0 0.75rem; }
 
     code { font-size: 12px; word-break: break-word; }
 }
@@ -164,5 +163,5 @@ code {
     .nav { font-size: 9px; padding: 0 0.5rem; }
     .nav a { margin-right: 0.5rem; }
 
-    .about, .posts, .post { font-size: 15px; padding: 0 0.5rem; }
+    .container { font-size: 15px; padding: 0 0.5rem; }
 }

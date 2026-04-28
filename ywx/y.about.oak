@@ -9,7 +9,7 @@
 // ---
 
 fn render(root) with layout(root) :div |> tag(
-    cls(:about)
+    cls(:about, :container)
     tag(:h1, 'ABOUT')
     :p |> tag(
         'SHXYGTM is a tiny demo site wired up with a hash-based Router. '

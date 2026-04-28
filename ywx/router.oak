@@ -7,7 +7,10 @@ path := import('path')
 { Router: HttpRouter } := import('http')
 
 { s: s } := import('s')
+{ id: id } := import('id')
 { tag: tag } := import('tag')
+{ cls: cls } := import('cls')
+{ attr: attr } := import('attr')
 
 // ---
 
@@ -35,6 +38,8 @@ cs Router(routes, config) {
         req: req
         end: end
 
+        doc: doc
+        win: win
         ctx: ctx
         httpRouter: httpRouter
         

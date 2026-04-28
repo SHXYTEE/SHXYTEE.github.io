@@ -4,12 +4,15 @@
 // ---
 // @ Pages
 
-{ render: layout } := import('ywx/layout')
-
 home := import('ywx/y.home')
+
 about := import('ywx/y.about')
+
 postsPage := import('ywx/y.posts')
 postPage := import('ywx/y.post')
+
+shop := import('ywx/y.shop')
+shopItem := import('ywx/y.shops')
 
 // ---
 
@@ -21,6 +24,9 @@ with document.addEventListener('DOMContentLoaded') fn
     
     '/posts': postsPage.render
     '/posts/:id': postPage.render
+
+    '/shop': shop.render
+    '/shop/:id': shopItem.render
 
     '/404': fn(root) tag(:pre, 'Page not found')
 }

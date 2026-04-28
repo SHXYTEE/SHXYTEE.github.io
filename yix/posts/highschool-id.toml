@@ -1,0 +1,15 @@
+title = "BUILD NOTES"
+date = "2026-04-15"
+
+body = """
+<canvas id="highschool-id" width="640" height="480"></canvas>
+"""
+
+# infoMBC = """
+# print('abc')
+# """
+
+viewMBC = """
+std := import('std')
+
+"""

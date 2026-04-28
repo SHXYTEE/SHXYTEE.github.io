@@ -1,19 +1,14 @@
 title = "BUILD NOTES"
 date = "2026-04-15"
+
 body = """
-Magnolia compiles Oak to nine targets: native Oak, JavaScript,
-WebAssembly, TypeScript, Lua, Java, JSON AST, bytecode, and
-Markdown docs. Each target shares the same front end and diverges
-only at the final rendering step.
+<b>Hello!</b> - test
 
-The pipeline is: parse, transform, transpile, analyze, wrap module,
-wrap bundle, render. Adding a new target means writing a single
-renderer and teaching the config layer about a new flag. The
-analysis pass handles tail-call trampolining, identifier mangling,
-and a small amount of tree shaping.
+wow
 
-The bytecode target is the most interesting one. It serializes a
-compact binary that a small VM can execute directly, so cold starts
-are close to instant. The VM is itself written in Oak, which means
-it can be transpiled to JavaScript and embedded in a browser tab.
+:signoff
+"""
+
+viewMBC = """
+
 """

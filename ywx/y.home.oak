@@ -1,9 +1,8 @@
 std := import('std')
 dt := import('datetime')
 
-{ vm: vm } := import('../ycx/w.vm')
+{ RootVm: RootVm } := import('RootVm')
 
-b64 := import('b64')
 str := import('str')
 sort := import('sort')
 
@@ -14,9 +13,10 @@ sort := import('sort')
 { format: format } := import('fmt')
 { sort!: sort! } := import('sort')
 
+{ id: id } := import('id')
 { tag: tag } := import('tag')
-{ attr: attr } := import('attr')
 { cls: cls } := import('cls')
+{ attr: attr } := import('attr')
 
 { link: link, hashLink: hashLink } := import('link')
 { divider: divider } := import('divider')
@@ -88,16 +88,25 @@ fn item(label) :li |> tag(
     timestamp(label.2)
 )
 
-fn Left :div |> tag(
+// ---
+
+fn Left(root) :div |> tag(
     cls(:left)
     tag(:h1, tag(:small, '::'), 'YXXS', tag(:small, '.NEWS/'))
     with tag(:ul) fn(ul) with std.each(Items) fn(lbl) with ul.appendChild() {
         ix := item(lbl)
-        if lbl.3 != ? -> vm.run(lbl.3, { ix: ix })
+        if lbl.3 != ? -> with RootVm(lbl.3, root) {
+            ix: ix
+            ul: ul
+            label: lbl
+            timestamp: tx := timestamp(Items.(len(Items) - 1).2)
+        }
         ix
     }
-    tag(:p, cls(:release), splash, timestamp(Items.(len(Items) - 1).2), ':9999')
+    tag(:p, cls(:release), splash, tx, ':9999')
 )
+
+// ---
 
 fn Right :div |> tag(
     cls(:right)
@@ -112,9 +121,11 @@ fn Right :div |> tag(
     FaviIcon()
 )
 
+// ---
+
 fn render(root) with layout(root) :div |> tag(
-    cls(:helvetica, :home)
-    Left()
+    cls(:home, :container)
+    Left(root)
     tag(:div, cls(:divider))
-    Right()
+    Right(root)
 )

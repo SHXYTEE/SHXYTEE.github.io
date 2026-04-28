@@ -1,7 +1,7 @@
 std := import('std')
 str := import('str')
 
-{ vm: vm } := import('../ycx/w.vm')
+{ RootVm: RootVm } := import('RootVm')
 
 { s: s } := import('s')
 
@@ -22,20 +22,28 @@ fn renderTags(body) str.trim(body) |>
     str.replace('\n', '<br>')
 
 fn render(root) with layout(root) {
-    post := std.merge(
-        { title: 'NOT FOUND', date: '', body: '',  viewMBC: ? }
+    info := std.merge(
+        { title: 'NOT FOUND', date: '', body: '',  viewMBC: ?, infoMBC: ? }
         s(root.params.id) |> byId() |> std.default({})
     )
+
+    ix := :div |> tag(
+        cls(:post, :container)
+        ixTitle := with tag(:h1) info.title
+        ixDate := with tag(:p, cls(:meta)) info.date
+        ixBody := with tag(:p).using(:setHTMLUnsafe) info.body |> renderTags()
+        ixLink := hashLink('/posts', 'posts')
+    )
     
-    if post.viewMBC != ? -> with vm.run(post.viewMBC) with std.merge(root) {
-        post: post
+    if info.viewMBC != ? -> with RootVm(info.viewMBC, root) {
+        post: root.params.id
+        info: info
+        ix: ix
+        ixTitle: ixTitle
+        ixDate: ixDate
+        ixBody: ixBody
+        ixLink: ixLink
     }
 
-    :div |> tag(
-        cls(:post)
-        with tag(:h1) post.title
-        with tag(:p, cls(:meta)) post.date
-        with tag(:p).using(:setHTMLUnsafe) post.body |> renderTags()
-        hashLink('/posts', 'posts')
-    )
+    ix
 }

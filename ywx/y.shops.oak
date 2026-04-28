@@ -1,0 +1,39 @@
+std := import('std')
+str := import('str')
+
+{ RootVm: RootVm } := import('RootVm')
+
+{ TOML: TOML } := import('data')
+
+{ id: id } := import('id')
+{ tag: tag } := import('tag')
+{ cls: cls } := import('cls')
+{ attr: attr } := import('attr')
+
+{ divider: divider } := import('divider')
+
+{ link: link, hashLink: hashLink } := import('link')
+
+{ render: layout } := import('layout')
+
+{ byId: byId } := import('y.shop')
+
+// ---
+
+fn render(root) {
+    itemId := root.params.id
+    info := byId(itemId)
+
+    ix := :div |> tag(
+        cls(:shops, :container)
+        
+    )
+
+    if info.viewMBC != ? -> with RootVm(info.viewMBC, root) {
+        post: itemId
+        info: info
+        ix: ix
+    }
+
+    with layout(root) ix
+}

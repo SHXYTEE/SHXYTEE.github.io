@@ -1,0 +1,6 @@
+{ s: s } := import('s')
+{ attr: attr } := import('attr')
+
+// ---
+
+fn id(ix) attr(:id, s(ix))

@@ -6,22 +6,25 @@
 
 // ---
 
-fn tag(n, cx...) {
-    if document != ? -> {
-        nameStr := s(n)
-        result := document.createElement(nameStr)
-        
-        with each(cx) fn(ii) if type(ii) {
-            :string -> result.appendChild(document.createTextNode(s(ii)))
-            :function -> {
-                r := ii(result)
-                if r != ? & r != result -> result.appendChild(r)
-            }
-            _ -> if ii != ? -> result.appendChild(ii)
-        }
+fn _binds(tx) {
+    tx.using <- fn(fx, ax...) { tx.(s(fx))(ax...), tx }
+    tx.onto <- fn(px) px.appendChild(tx)
+}
 
-        result.using := fn(fx, ax...) { result.(s(fx))(ax...), result }
-
-        result
+fn _append(tx, cx...) with each(cx) fn(ii) if type(ii) {
+    :string -> tx.appendChild(document.createTextNode(s(ii)))
+    :function -> {
+        r := ii(tx)
+        if r != ? & r != tx -> tx.appendChild(r)
     }
+    _ -> if ii != ? -> tx.appendChild(ii)
+}
+
+fn tag(n, cx...) {
+    result := if type(n) {
+        :string, :atom -> document.createElement(s(n))
+        _ -> n
+    }
+    _append(result, cx...)
+    _binds(result)
 }

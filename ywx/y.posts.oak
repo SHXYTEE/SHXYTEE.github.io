@@ -2,7 +2,7 @@ std := import('std')
 fs := import('fs')
 str := import('str')
 
-{ vm: vm } := import('../ycx/w.vm')
+{ RootVm: RootVm } := import('RootVm')
 
 { TOML: TOML } := import('data')
 
@@ -11,9 +11,10 @@ datetime := import('datetime')
 
 { s: s } := import('s')
 
+{ id: id } := import('id')
 { tag: tag } := import('tag')
-{ attr: attr } := import('attr')
 { cls: cls } := import('cls')
+{ attr: attr } := import('attr')
 
 { divider: divider } := import('divider')
 
@@ -42,24 +43,6 @@ fn listPosts(dir) vfs.listDir(dir) |>
     std.map(fn(e) std.slice(e.name, 0, len(e.name) - 5)) |>
     sort.sort(fn(p) -postDate(p))
 
-// ---
-
-fn item(root, post) {
-    info := byId(post)
-    
-    if info.infoMBC != ? -> with vm.run(info.infoMBC) with std.merge(root) {
-        post: post
-    }
-    
-    :li |> tag(
-        hashLink(info.title, 'posts/' + post)
-        divider()
-        info.date
-    )
-}
-
-// ---
-
 fn updateCache PostsCache <- listPosts('yix/posts')
 PostsCache := updateCache()
 
@@ -67,8 +50,34 @@ PostInterval := window.setInterval(updateCache, 15000)
 
 // ---
 
+fn item(root, post) {
+    info := byId(post)
+    
+    ix := :li |> tag(
+        ixLink := hashLink(info.title, 'posts/' + post)
+        ixDivider := divider()
+        info.date
+    )
+
+    if info.infoMBC != ? -> with RootVm(info.infoMBC, root) {
+        post: post
+        info: info
+        ix: ix
+        ixLink: ixLink
+        ixDivider: ixDivider
+        ixDate: info.date
+    }
+    
+    ix
+}
+
+// ---
+
 fn render(root) with layout(root) :div |> tag(
-    cls(:posts)
+    cls(:posts, :container)
     tag(:h1, 'POSTS')
-    with tag(:ul) fn(ul) with std.each(PostsCache) fn(p) with ul.appendChild() item(root, p)
+    
+    with tag(:ul) fn
+    (ul) with std.each(PostsCache) fn
+    (p) with ul.appendChild() item(root, p)
 )

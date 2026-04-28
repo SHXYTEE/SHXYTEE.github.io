@@ -1,4 +1,5 @@
 std := import('std')
+str := import('str')
 
 json := import('json')
 
@@ -29,32 +30,45 @@ json := import('json')
 
 // ---
 
-fn globalStyle '/* © 2026 YXXS /Stylesheet */\n' <<
-    vfs.readFile('yix/layout.css') <<
-    vfs.readFile('yix/y.home.css') <<
-    vfs.readFile('yix/y.about.css') <<
-    vfs.readFile('yix/y.posts.css') <<
+fn globalStyle [
+    '/* © 2026 YXXS /Stylesheet */\n' 
+    vfs.readFile('yix/layout.css')
+    
+    vfs.readFile('yix/y.home.css')
+
+    vfs.readFile('yix/y.about.css')
+    
+    vfs.readFile('yix/y.posts.css')
     vfs.readFile('yix/y.post.css')
 
+    vfs.readFile('yix/y.shop.css')
+] |> str.join('\n\n')
+
+// ---
+
 fn NavTitle :nav |> tag(
-    cls(:nav)
+    cls(:nav, :helvetica)
     with tag(:small, document.location.host, ' :: ') with tag(:span) sha256(
         document.location.host + '::' + JSON.stringify(vfs.files)
     )
 )
 
 fn NavLinks :span |> tag(
-    cls(:navLinks)
+    cls(:navLinks, :helvetica)
     hashLink('/home', '')
     divider()
     hashLink('/about', 'about')
     divider()
     hashLink('/posts', 'posts')
+    divider()
+    hashLink('/shop', 'shop')
 )
 
+// ---
+
 fn Footer :footer |> tag(
-    cls(:footer)
-    :relative |> Rect('0', '0', rectWidth := '100%', rectHeight := '2.75ch', rectColor := '#eee'
+    cls(:footer, :helvetica)
+    :relative |> Rect('0', '0', rectWidth := '100%', rectHeight := '2.35ch', rectColor := '#eee'
         cls(:footerBg)
         // tag(:span, '© 2026 SPECT')
         NavLinks()
@@ -75,10 +89,12 @@ fn Footer :footer |> tag(
     )
 )
 
+// ---
+
 fn render(root, body) root.ctx.replaceChildren(
     with tag(:style) globalStyle()
     // Nav()
     NavTitle()
-    tag(:div, cls(:page), body)
+    tag(:div, cls(:page, :helvetica), body)
     Footer()
 )

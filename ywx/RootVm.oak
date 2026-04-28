@@ -1,0 +1,30 @@
+{ vm: vm } := import('../ycx/w.vm')
+
+{ s: s } := import('s')
+
+{ id: id } := import('id')
+{ cls: cls } := import('cls')
+{ attr: attr } := import('attr')
+
+{ 
+    tag: tag
+    append: append
+    _binds: tag_binds
+} := import('tag')
+
+// ---
+
+fn RootVm(src, cx...) with vm.run(src) {
+    RootVm: RootVm
+    src: src
+    hvm: vm
+    
+    s: s
+    id: id
+    cls: cls
+    attr: attr
+
+    tag: tag
+    append: append
+    tag_binds: tag_binds
+} |> std.merge(cx...)
