@@ -11,6 +11,10 @@
     --link: #3b6cf0;
 }
 
+@default-style {
+    * { border-color: #ddd }
+}
+
 body {
     /* font-family: helvetica, arial, sans-serif; */
     color: #000;

@@ -1,5 +1,5 @@
-title = "HIGHSCHOOL ID"
-date = "2026-04-15"
+title = "ART #1"
+date = "2026-04-14"
 
 body = """
 <canvas id="highschool-id" width="640" height="480"></canvas>

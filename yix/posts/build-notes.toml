@@ -1,12 +1,31 @@
-title = "BUILD NOTES"
+title = "shop released today."
 date = "2026-04-15"
 
 body = """
-<b>Hello!</b> - test
+today I released the CBFP shop for people to buy the latest collects
+which have been selling on the streets for a while now.
 
-wow
+it's been a project thats been a range of research and long time
+friends coming together to make an Art Story that really shows
+the past
 
-:signoff
+and how important it is to not accidentally 
+erase the past.
+
+<fieldset>
+    <legend>what is CBFP?</legend>"Confidence Bank Frat Party" (as "CBFP") is an art project that reaches new heights.
+
+    <a href="https://cbfp.dashery.com/">FIND IT HERE.</a>
+
+    The latest Collections are:
+
+    <i>XX/2024-05/2025:</i><a href="#/shop/CONFIDENCE-FRAT-PARTY-2026-WEBSITE">CLXSSIC</a>
+
+    <i>05/2026-07/2026: YXXXLION</i><a href="https://cbfp.dashery.com/albums/514306-cbfp-yeuxlion-limited">CLXSSIC</a>
+
+    Ongoing:
+    <i>05/2026-XX/XXXX:</i><a href="https://cbfp.dashery.com/products/91718223-lxxpard-limited-supply-t-shirt">LXXPARD</a>
+</fieldset>
 """
 
 viewMBC = """
