@@ -1,15 +1,165 @@
-title = "BUILD NOTES"
+title = "HIGHSCHOOL ID"
 date = "2026-04-15"
 
 body = """
 <canvas id="highschool-id" width="640" height="480"></canvas>
 """
 
-# infoMBC = """
-# print('abc')
-# """
-
 viewMBC = """
-std := import('std')
+canvas := ixBody.querySelector('#highschool-id')
+gl := canvas.getContext('webgl2')
 
+// ---
+
+vertSrc := '#version 300 es
+precision mediump float;
+
+void main() {
+    vec2 pos[3];
+    pos[0] = vec2(-1.0, -1.0);
+    pos[1] = vec2( 3.0, -1.0);
+    pos[2] = vec2(-1.0,  3.0);
+
+    gl_Position = vec4(pos[gl_VertexID], 0.0, 1.0);
+}'
+
+fragSrc := '#version 300 es
+precision mediump float;
+
+out vec4 fragColor;
+uniform float iTime;
+
+// ------------------------------------------------------------
+// Hash / Noise
+// ------------------------------------------------------------
+float hash(vec2 p) {
+    p = fract(p * vec2(127.1, 311.7));
+    p += dot(p, p + 74.74);
+    return fract(p.x * p.y);
+}
+
+float noise(vec2 p) {
+    vec2 i = floor(p);
+    vec2 f = fract(p);
+
+    vec2 u = f*f*f*(f*(f*6.0-15.0)+10.0);
+
+    float a = hash(i);
+    float b = hash(i+vec2(1,0));
+    float c = hash(i+vec2(0,1));
+    float d = hash(i+vec2(1,1));
+
+    return mix(mix(a,b,u.x), mix(c,d,u.x), u.y);
+}
+
+float fbm(vec2 p) {
+    float v = 0.0;
+    float a = 0.5;
+    for(int i=0;i<5;i++){
+        v += a * noise(p);
+        p *= 2.1;
+        a *= 0.48;
+    }
+    return v;
+}
+
+// ------------------------------------------------------------
+
+void main() {
+
+    vec2 res = vec2(640.0, 480.0);
+    float t  = iTime;
+
+    vec2 uv = (gl_FragCoord.xy / res) * 2.0 - 1.0;
+    uv.x *= res.x / res.y;
+
+    float r = length(uv);
+    float a = atan(uv.y, uv.x);
+
+    // --------------------------------------------------------
+    // Stronger center swirl
+    // --------------------------------------------------------
+    float swirlStrength = 3.5 * exp(-r * 2.5);
+    float angle = a + swirlStrength - t * 0.3;
+    vec2 p = r * vec2(cos(angle), sin(angle));
+
+    // --------------------------------------------------------
+    // Spiral arms
+    // --------------------------------------------------------
+    float field = fbm(p * 2.0);
+    float arms  = sin(5.0 * angle - r * 12.0 + field * 6.0);
+    float armsMask = smoothstep(0.2, 0.7, arms);
+    armsMask *= smoothstep(1.6, 0.3, r);
+
+    // --------------------------------------------------------
+    // Dust breakup (fixes solid ribbons)
+    // --------------------------------------------------------
+    float dust = fbm(p * 8.0);
+    armsMask *= smoothstep(0.35, 0.75, dust);
+
+    // --------------------------------------------------------
+    // Core glow
+    // --------------------------------------------------------
+    float core = exp(-r * 3.8);
+
+    // --------------------------------------------------------
+    // Dark lanes (adds depth)
+    // --------------------------------------------------------
+    float dark = fbm(p * 6.0);
+    float darkMask = smoothstep(0.4, 1.2, r);
+    
+    // --------------------------------------------------------
+    // Base energy
+    // --------------------------------------------------------
+    float energy = armsMask * 0.7 + core * 1.2;
+    energy = clamp(energy, 0.0, 1.0);
+
+    // --------------------------------------------------------
+    // Color palette
+    // --------------------------------------------------------
+    vec3 col = mix(
+        vec3(0.02,0.03,0.08),   // deep space
+        vec3(0.1,0.4,1.0),      // electric blue
+        energy
+    );
+
+    // warm outer hints
+    col += vec3(0.6,0.25,0.1) * armsMask * 0.6;
+
+    // subtract dark lanes
+    col -= dark * 0.2 * darkMask;
+
+    // --------------------------------------------------------
+    // Softer bloom
+    // --------------------------------------------------------
+    col += vec3(0.7,0.9,1.2) * core * 0.6;
+
+    // --------------------------------------------------------
+    // Radial star field (fixed)
+    // --------------------------------------------------------
+    float star = hash(floor(uv * 250.0));
+    star = pow(star, 20.0);
+
+    float starMask = smoothstep(0.5, 1.4, r);
+    col += vec3(star * starMask * 2.0);
+
+    // --------------------------------------------------------
+    // Outer fade (removes messy edges)
+    // --------------------------------------------------------
+    float vignette = smoothstep(1.6, 0.6, r);
+    col *= vignette;
+
+    // --------------------------------------------------------
+    // Tone map + gamma
+    // --------------------------------------------------------
+    col = col / (col + 1.0);
+    col = pow(col, vec3(0.4545));
+
+    fragColor = vec4(col, 1.0);
+}'
+
+// ---
+
+clearDraw(gl)
+assembleDrawPair(gl, vertSrc, fragSrc)
 """

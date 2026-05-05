@@ -13,4 +13,4 @@ vm.registerBuiltin('document', document)
 vm.registerBuiltin('window', window)
 vm.registerBuiltin('vm', vm)
 
-vm.registerBuiltin('vfs', ___packed_vfs())
+vm.registerBuiltin('vfs', window.___packed_vfs())

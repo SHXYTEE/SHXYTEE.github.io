@@ -1,7 +1,7 @@
 std := import('std')
 str := import('str')
 
-{ RootVm: RootVm } := import('RootVm')
+{ PostVm: PostVm } := import('RootVm')
 
 { s: s } := import('s')
 
@@ -35,7 +35,7 @@ fn render(root) with layout(root) {
         ixLink := hashLink('/posts', 'posts')
     )
     
-    if info.viewMBC != ? -> with RootVm(info.viewMBC, root) {
+    if info.viewMBC != ? -> with PostVm(info.viewMBC, root) {
         post: root.params.id
         info: info
         ix: ix

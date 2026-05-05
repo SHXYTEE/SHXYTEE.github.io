@@ -1,3 +1,5 @@
+std := import('std')
+
 { vm: vm } := import('../ycx/w.vm')
 
 { s: s } := import('s')
@@ -28,3 +30,34 @@ fn RootVm(src, cx...) with vm.run(src) {
     append: append
     tag_binds: tag_binds
 } |> std.merge(cx...)
+
+// ---
+
+fn _clearDraw(gl) {
+    gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight)
+    gl.clearColor(0.0, 0.0, 0.0, 1.0)
+    gl.clear(gl.COLOR_BUFFER_BIT)
+}
+
+fn _assembleDrawPair(gl, vx, fx) {
+    vert := gl.createShader(gl.VERTEX_SHADER)
+    gl.shaderSource(vert, vx)
+    gl.compileShader(vert)
+
+    frag := gl.createShader(gl.FRAGMENT_SHADER)
+    gl.shaderSource(frag, fx)
+    gl.compileShader(frag)
+
+    prog := gl.createProgram()
+    gl.attachShader(prog, vert)
+    gl.attachShader(prog, frag)
+    gl.linkProgram(prog)
+    gl.useProgram(prog)
+
+    gl.drawArrays(gl.TRIANGLES, 0, 3)
+}
+
+fn PostVm(src, cx...) with RootVm(src, cx...) {
+    clearDraw: _clearDraw
+    assembleDrawPair: _assembleDrawPair
+}

@@ -1,0 +1,23 @@
+name = "CONFIDENCE FRAT PARTY 2026 WEBSITE"
+category = "essentials"
+
+timestamp = 1776904000
+
+price = "~45.69"
+stock = 13000
+
+description = "RECENT COLLECTIONS! MAY 2026 YXXXLION, DON'T WAIT!"
+
+html = """
+<iframe src="https://cbfp.dashery.com/embed/v1/carousel?wmode=opaque" width="100%" height="400px" style="border:none;">
+
+</iframe>
+"""
+
+# infoMBC = """
+# print('abc')
+# """
+
+# viewMBC = """
+# print('abc')
+# """
