@@ -17,14 +17,12 @@ sort := import('sort')
 
 { render: layout } := import('layout')
 
+{ getTomls: getTomls, sortTomls: sortTomls } := import('y.posts')
+
 // ---
 
 fn byId(id) vfs.readFile('yix/shop/' + id + '.toml', TOML.parse)
-
-fn listItems(dir) vfs.listDir(dir) |>
-    std.filter(fn(e) !e.dir & str.endsWith?(e.name, '.toml')) |>
-    std.map(fn(e) std.slice(e.name, 0, len(e.name) - 5)) |>
-    sort.sort(fn(id) -byId(id).timestamp)
+fn listItems(dir) getTomls(dir) |> sortTomls(byId)
 
 fn updateCache ShopCache <- listItems('yix/shop')
 ShopCache := updateCache()

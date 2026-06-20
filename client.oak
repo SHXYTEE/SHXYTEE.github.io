@@ -14,10 +14,13 @@ postPage := import('ywx/y.post')
 shop := import('ywx/y.shop')
 shopItem := import('ywx/y.shops')
 
+map := import('ywx/z.mapgame')
+
 // ---
 
 with document.addEventListener('DOMContentLoaded') fn
 () with document.body.appendChild() with Router() {
+    // YEWS
     '/': home.render
 
     '/about': about.render
@@ -27,6 +30,8 @@ with document.addEventListener('DOMContentLoaded') fn
 
     '/shop': shop.render
     '/shop/:id': shopItem.render
+
+    '/map': map.render
 
     '/404': fn(root) tag(:pre, 'Page not found')
 }

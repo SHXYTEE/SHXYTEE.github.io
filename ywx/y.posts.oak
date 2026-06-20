@@ -24,34 +24,40 @@ datetime := import('datetime')
 
 // ---
 
-fn byId(id) vfs.readFile('yix/posts/' + id + '.toml', TOML.parse)
-
 // Parse a post's date (YYYY-MM-DD) into a unix timestamp for sorting.
-fn postDate(id) {
-    info := byId(id)
-    if info = ? | info.date = ? {
-        true -> 0
-        _ -> if parsed := datetime.parse(info.date + 'T00:00:00Z') {
-            ? -> 0
-            _ -> datetime.timestamp(parsed)
-        }
+fn postDate(idx) if ? = idx | idx.date = ? {
+    true -> 0
+    _ -> if parsed := datetime.parse(idx.date + 'T00:00:00Z') {
+        ? -> 0
+        _ -> datetime.timestamp(parsed)
     }
 }
 
-fn listPosts(dir) vfs.listDir(dir) |>
+fn getTomls(dir) vfs.listDir(dir) |>
     std.filter(fn(e) !e.dir & str.endsWith?(e.name, '.toml')) |>
-    std.map(fn(e) std.slice(e.name, 0, len(e.name) - 5)) |>
-    sort.sort(fn(p) -postDate(p))
+    std.map(fn(e) std.slice(e.name, 0, len(e.name) - 5))
+
+// fn sortTomls(tx, fx) with sort.sort(tx) fn(p) -with postDate() fx(p)
+fn sortTomls(tx, fx) sort.sort(tx) |> std.reverse()
+
+// ---
+
+fn byId(id) vfs.readFile('yix/posts/' + id + '.toml', TOML.parse)
+fn listPosts(dir) getTomls(dir) |> sortTomls(byId)
 
 fn updateCache PostsCache <- listPosts('yix/posts')
 PostsCache := updateCache()
+
+PostsDict := with std.reduce(PostsCache, {}) fn(acc, p) acc.(p) <- byId(p)
+fn getPost(id) PostsDict.(id) |> std.default({ title: 'NOT FOUND', date: '', body: '', viewMBC: ?, infoMBC: ? })
 
 PostInterval := window.setInterval(updateCache, 15000)
 
 // ---
 
 fn item(root, post) {
-    info := byId(post)
+    // info := byId(post)
+    info := getPost(post)
     
     ix := :li |> tag(
         ixLink := hashLink(info.title, 'posts/' + post)

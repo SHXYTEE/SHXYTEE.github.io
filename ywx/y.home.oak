@@ -23,18 +23,18 @@ sort := import('sort')
 
 { render: layout } := import('layout')
 
+{ getTomls: getTomls } := import('y.posts')
+
 // ---
 
-splash := 'release:shxy.@9:05pm/'
+splash := 'release:shxy.06-20@7:00am/'
 
 // Load items from yix/items/ folder
 fn itemById(id) vfs.readFile('yix/items/' + id + '.toml', TOML.parse)
 
 fn listItems(dir) {
-    fileList := vfs.listDir(dir) |>
-        std.filter(fn(e) !e.dir & str.endsWith?(e.name, '.toml')) |>
-        std.map(fn(e) std.slice(e.name, 0, len(e.name) - 5))
-    
+    fileList := getTomls(dir)
+
     fileList <- fileList |> with std.map() fn(id) {
         info := itemById(id)
         [tag(:span, info.title), info.href, info.timestamp, info.mbc]
@@ -56,7 +56,7 @@ fn FaviIcon() :span |> tag(
     cls(:pfp)
     :img |> tag(
         attr(:src, 'favicon.ico')
-        attr(:alt, 'Favicon')
+        attr(:alt, 'Server Fail')
         attr(:width, wh := '32') 
         attr(:height, wh)
     )
@@ -111,12 +111,16 @@ fn Left(root) :div |> tag(
 fn Right :div |> tag(
     cls(:right)
     :p |> tag(
-        'Some extra content that should seem to '
-        'be interesting yes so I suggest reading '
-        'it yea yea yea. Ong.'
+        'YXXS is Ye\'s mobile news platform. '
+        'Designed for quick, high-signal news consumption on phones.'
     )
-    tag(:p, 'Heres a ', link('link', '#/'), '.')
-    // tag(:img, cls(:pfp), attr(:src, 'bkpfp.svg'), attr(:alt, ''))
+    :p |> tag(
+        'Stories are paired with William Blake artwork '
+        'for thematic resonance and visionary context.'
+    )
+    :p |> tag(
+        link('Read more...', '#/posts')
+    )
     tag(:span, cls(:pfp)).using(:setHTMLUnsafe, svgIcon)
     FaviIcon()
 )

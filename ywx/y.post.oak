@@ -12,7 +12,7 @@ str := import('str')
 { divider: divider } := import('divider')
     
 { link: link, hashLink: hashLink } := import('link')
-{ byId: byId } := import('y.posts')
+{ byId: byId, getPost: getPost } := import('y.posts')
 
 { render: layout } := import('layout')
 
@@ -22,10 +22,11 @@ fn renderTags(body) str.trim(body) |>
     str.replace('\n', '<br>')
 
 fn render(root) with layout(root) {
-    info := std.merge(
-        { title: 'NOT FOUND', date: '', body: '',  viewMBC: ?, infoMBC: ? }
-        s(root.params.id) |> byId() |> std.default({})
-    )
+    // info := std.merge(
+    //     { title: 'NOT FOUND', date: '', body: '',  viewMBC: ?, infoMBC: ? }
+    //     s(root.params.id) |> byId() |> std.default({})
+    // )
+    info := getPost(root.params.id)
 
     ix := :div |> tag(
         cls(:post, :container)

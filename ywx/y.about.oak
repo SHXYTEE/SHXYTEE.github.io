@@ -10,17 +10,18 @@
 
 fn render(root) with layout(root) :div |> tag(
     cls(:about, :container)
-    tag(:h1, 'ABOUT')
+    tag(:h1, 'ABOUT YXXS')
     :p |> tag(
-        'SHXYGTM is a tiny demo site wired up with a hash-based Router. '
-        'Every page you see here is a function that takes (params, ctx, httpRouter) and '
-        'paints a DOM subtree into the container.'
+        'YXXS is YE mobile-first news platform. '
+        'Designed for quick, high-signal news consumption on phones.'
     )
     :p |> tag(
-        'Poke around the posts'
+        'Stories are paired with William Blake artwork '
+        'for thematic resonance and visionary context.'
+    )
+    :p |> tag(
+        'Navigate via the news feed '
         divider()
-        'each one is routed by '
-        tag(:code, ':id')
-        ' capture in the URL pattern.'
+        'or browse posts for full articles.'
     )
 )

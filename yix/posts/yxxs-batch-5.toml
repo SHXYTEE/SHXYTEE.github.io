@@ -1,0 +1,69 @@
+title = "YXXS 5"
+date = "2026-06-20"
+
+body = """
+<b>5:32 AM</b>
+
+
+<b>Blake, Wm. The Ancient of Days. 1794.</b>
+
+
+<fieldset><legend><b>OpenAI Hires Gemini Co-Lead</b>
+</legend>OpenAI has recruited Noam Shazeer, one of the leaders behind Google's Gemini models, in a high-profile talent move in the AI race.
+
+Shazeer helped shape some of Google's most advanced AI systems. His departure highlights escalating competition for top researchers as companies race to build larger and more capable models. "The AI talent war is accelerating," one industry analyst said.
+</fieldset>
+
+
+Source
+
+
+
+<b>Blake, Wm. The Good and Evil Angels. 1795.</b>
+
+
+<fieldset><legend><b>SoftBank Launches OpenAI Cyber Defense Tool</b>
+</legend>SoftBank unveiled a cybersecurity product built on OpenAI technology and aimed at protecting critical infrastructure in Japan.
+
+The service is designed to identify vulnerabilities and speed security updates. SoftBank founder Masayoshi Son described AI as a tool for national resilience as cyber threats become more sophisticated.
+
+"AI can be a powerful ally in defense," Son said.
+</fieldset>
+
+
+Source
+
+
+
+<b>Blake, Wm. Jerusalem. 1804.</b>
+
+
+<fieldset><legend><b>Europe Pushes for AI Independence</b>
+</legend>European leaders are discussing new funding mechanisms to strengthen domestic AI development and reduce reliance on foreign platforms.
+
+Executives and policymakers argue that Europe needs greater computing power, investment, and research capacity to remain competitive in the global AI economy.
+
+"Building our own AI capabilities is essential for Europe's future," said a European Commission official.
+</fieldset>
+
+
+Source
+
+
+
+<b>Blake, Wm. Jacob's Ladder. 1805.</b>
+
+
+<fieldset><legend><b>Von der Leyen Calls for AI Cooperation</b>
+</legend>European Commission President Ursula von der Leyen said it is in the mutual interest of the United States and Europe to share access to trusted AI systems.
+
+She compared AI governance to aviation safety, arguing that advanced technologies require common standards and international trust.
+</fieldset>
+
+
+Source
+"""
+
+# viewMBC = """
+
+# """

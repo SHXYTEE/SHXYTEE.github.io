@@ -1,0 +1,61 @@
+{ id: id } := import('id')
+{ tag: tag } := import('tag')
+{ cls: cls } := import('cls')
+{ attr: attr } := import('attr')
+
+{ s: s } := import('s')
+
+{ RootVm: RootVm } := import('RootVm')
+
+{ divider: divider } := import('divider')
+
+{ render: layout } := import('layout')
+
+// ---
+// 
+// Image Map Game
+// 
+// @SpectCow
+// 
+// This is a Ye themed image map game. The main goal for the player is to collect clothing to get into the VIP section, but we lack stars. 
+// So instead, we have to collect the clothing by finding them across the universe-city. 
+// 
+// We will use overlayed floating gifs to show animated features ontop of the image maps.
+// 
+// We'll use the latest modern way to store the state, so we'll use 
+// 
+// Refer to refs/
+// 
+// ---
+
+// 2026-06-09
+
+// ---
+// @Info
+
+fn yelog(c) with window.console.log(:ye) s(c)
+fn yeinfo(c) with window.console.info(:ye) s(c)
+fn yewarn(c) with window.console.warn(:ye) s(c)
+fn yeerror(c) with window.console.error(:ye) s(c)
+
+// ---
+// @Storage
+
+fn CheckStorage if window.navigator.storage != ? -> if window.navigator.storage.persisted != ? {
+    true -> if window.navigator.storage.persisted() {
+        true -> yeinfo('Storage is already persisted. Your progress will be saved.')
+        _ -> with window.navigator.storage.persist().then() fn(r) if r {
+            true -> yewarn('The game will be saved.')
+            _ -> yewarn('The game will not be saved. Your progress may be lost.')
+        }
+    }
+    _ -> yeerror('Storage manager not supported. Your progress may be lost.')
+}
+
+// ---
+// @Game
+
+fn render(root) with layout(root) :div |> tag(
+    cls(:about, :container)
+    CheckStorage
+)
